@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="JobSwipe - Login to find your dream job">
+    <title>JobSwipe | Login</title>
+
+    <link rel="icon"
+        href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💼</text></svg>">
+    <link rel="stylesheet" href="css/variables.css">
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/auth.css">
+</head>
+
+<body>
+    <canvas id="particle-canvas"></canvas>
+
+    <div class="auth-container">
+        <!-- Logo -->
+        <div class="auth-logo">
+            <div class="logo-icon">💼</div>
+            <h1 class="logo-text">JobSwipe</h1>
+            <p class="logo-tagline">Swipe your way to your dream job</p>
+        </div>
+
+        <!-- Auth Card -->
+        <div class="auth-card">
+            <!-- Tab Switcher -->
+            <div class="auth-tabs">
+                <button class="auth-tab active" data-tab="login">Login</button>
+                <button class="auth-tab" data-tab="register">Sign Up</button>
+            </div>
+
+            <!-- Login Form -->
+            <form id="login-form" class="auth-form active">
+                <div class="form-group">
+                    <label for="login-email">Email</label>
+                    <input type="email" id="login-email" placeholder="you@example.com" required autocomplete="email">
+                </div>
+
+                <div class="form-group">
+                    <label for="login-password">Password</label>
+                    <input type="password" id="login-password" placeholder="••••••••" required
+                        autocomplete="current-password">
+                </div>
+
+                <button type="submit" class="btn-submit">
+                    <span>Login</span>
+                    <span class="btn-loader"></span>
+                </button>
+
+                <div class="form-error" id="login-error"></div>
+            </form>
+
+            <!-- Register Form -->
+            <form id="register-form" class="auth-form">
+                <div class="form-group">
+                    <label for="register-name">Full Name</label>
+                    <input type="text" id="register-name" placeholder="John Doe" autocomplete="name">
+                </div>
+
+                <div class="form-group">
+                    <label for="register-email">Email</label>
+                    <input type="email" id="register-email" placeholder="you@example.com" required autocomplete="email">
+                </div>
+
+                <div class="form-group">
+                    <label for="register-password">Password</label>
+                    <input type="password" id="register-password" placeholder="Min. 6 characters" required minlength="6"
+                        autocomplete="new-password">
+                </div>
+
+                <div class="form-group">
+                    <label for="register-confirm">Confirm Password</label>
+                    <input type="password" id="register-confirm" placeholder="••••••••" required
+                        autocomplete="new-password">
+                </div>
+
+                <button type="submit" class="btn-submit">
+                    <span>Create Account</span>
+                    <span class="btn-loader"></span>
+                </button>
+
+                <div class="form-error" id="register-error"></div>
+            </form>
+        </div>
+
+        <!-- Footer -->
+        <p class="auth-footer">
+            By continuing, you agree to our Terms of Service
+        </p>
+    </div>
+
+    <script src="js/particles.js"></script>
+    <script src="js/auth.js"></script>
+</body>
+
+</html>

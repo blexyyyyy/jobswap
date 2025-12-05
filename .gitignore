@@ -1,0 +1,36 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+.env
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# Node
+node_modules/
+npm-debug.log
+
+# Database
+database/*.db
+.chroma/
+chroma_store/
+
+# Streamlit
+.streamlit/
+
+# Project specific
+uploads/
+*.pdf
+*.docx
+temp/
+logs/
+
+# Agent
+.gemini/

@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JobSwipe | Applied Jobs</title>
+
+    <link rel="icon"
+        href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💼</text></svg>">
+    <link rel="stylesheet" href="css/variables.css">
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/applied.css">
+</head>
+
+<body>
+    <canvas id="particle-canvas"></canvas>
+
+    <div class="app">
+        <!-- Header -->
+        <header class="app-header">
+            <div class="logo">
+                <div class="logo-icon">💼</div>
+                <span>JobSwipe</span>
+            </div>
+
+            <nav class="nav-links">
+                <a href="index.html" class="nav-link">Swipe</a>
+                <a href="applied.html" class="nav-link active">Applied</a>
+                <a href="profile.html" class="nav-link">Profile</a>
+            </nav>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="page-header">
+                <h1 class="page-title">Applied Jobs</h1>
+                <p class="page-subtitle">Track your applications and chat with employers</p>
+            </div>
+
+            <!-- Loading State -->
+            <div id="loading" class="loading">
+                <div class="spinner"></div>
+                <p>Loading applications...</p>
+            </div>
+
+            <!-- Empty State -->
+            <div id="empty-state" class="empty-state" style="display: none;">
+                <div class="empty-icon">📭</div>
+                <h2 class="empty-title">No Applications Yet</h2>
+                <p class="empty-text">Start swiping to find your dream job!</p>
+                <a href="index.html" class="btn-primary">Start Swiping</a>
+            </div>
+
+            <!-- Jobs List -->
+            <div id="jobs-list" class="jobs-list" style="display: none;"></div>
+        </main>
+    </div>
+
+    <script src="js/particles.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/applied.js"></script>
+</body>
+
+</html>

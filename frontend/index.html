@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description"
+        content="JobSwipe - Swipe your way to your dream job. AI-powered job matching made simple.">
+    <title>JobSwipe | Find Your Dream Job</title>
+
+    <!-- Favicon -->
+    <link rel="icon"
+        href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💼</text></svg>">
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="css/variables.css">
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/explanation.css">
+    <link rel="stylesheet" href="css/animations.css">
+</head>
+
+<body>
+    <div class="app">
+        <!-- Header -->
+        <header class="app-header">
+            <div class="logo">
+                <div class="logo-icon">💼</div>
+                <span class="text-gradient">JobSwipe</span>
+            </div>
+
+            <div class="header-stats">
+                <div class="stat">
+                    <div class="stat-value" id="stat-viewed">0</div>
+                    <div class="stat-label">Viewed</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-value" id="stat-applied">0</div>
+                    <div class="stat-label">Applied</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-value" id="stat-saved">0</div>
+                    <div class="stat-label">Saved</div>
+                </div>
+            </div>
+
+            <nav style="display: flex; gap: 1rem; align-items: center;">
+                <a href="dashboard.html" class="btn-applied">📊 Dashboard</a>
+                <a href="applied.html" class="btn-applied">📋 Applied</a>
+                <a href="profile.html" class="btn-applied">👤 Profile</a>
+            </nav>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Card Stack Container -->
+            <div class="card-stack" id="card-stack">
+                <!-- Cards will be dynamically inserted here -->
+                <div class="loading" id="loading">
+                    <div class="spinner"></div>
+                    <p>Finding perfect matches...</p>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="action-bar">
+                <button class="action-btn skip" id="btn-skip" title="Skip (←)">
+                    ✕
+                </button>
+                <button class="action-btn save" id="btn-save" title="Save (↓)">
+                    ⭐
+                </button>
+                <button class="action-btn apply" id="btn-apply" title="Apply (→)">
+                    ❤️
+                </button>
+            </div>
+        </main>
+
+        <!-- Empty State (hidden by default) -->
+        <div class="empty-state" id="empty-state" style="display: none;">
+            <div class="empty-icon">🎉</div>
+            <h2 class="empty-title">You've seen all jobs!</h2>
+            <p class="empty-text">Check back later for new opportunities</p>
+            <button class="btn-primary" onclick="location.reload()">Refresh</button>
+        </div>
+
+        <!-- Toast Container -->
+        <div class="toast-container" id="toast-container"></div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/particles.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/swipe.js"></script>
+    <script src="js/cards.js"></script>
+    <script src="js/app.js"></script>
+</body>
+
+</html>

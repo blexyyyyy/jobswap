@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JobSwipe | My Profile</title>
+
+    <link rel="icon"
+        href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💼</text></svg>">
+    <link rel="stylesheet" href="css/variables.css">
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/profile.css">
+</head>
+
+<body>
+    <canvas id="particle-canvas"></canvas>
+
+    <div class="app">
+        <!-- Header -->
+        <header class="app-header">
+            <div class="logo">
+                <div class="logo-icon">💼</div>
+                <span>JobSwipe</span>
+            </div>
+
+            <nav class="nav-links">
+                <a href="index.html" class="nav-link">Swipe</a>
+                <a href="applied.html" class="nav-link">Applied</a>
+                <a href="profile.html" class="nav-link active">Profile</a>
+            </nav>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="profile-container">
+                <h1 class="page-title">My Profile</h1>
+
+                <!-- Resume Upload Section -->
+                <section class="upload-section">
+                    <h2>Upload Resume</h2>
+                    <p class="section-desc">Upload your resume (PDF or DOCX) to auto-fill your profile and get better
+                        matches.</p>
+
+                    <div class="drop-zone" id="drop-zone">
+                        <div class="drop-zone-content">
+                            <span class="upload-icon">📄</span>
+                            <p>Drag & Drop or <span class="highlight">Browse</span></p>
+                            <span class="file-types">Supports PDF, DOCX</span>
+                        </div>
+                        <input type="file" id="resume-upload" accept=".pdf,.docx" hidden>
+                    </div>
+
+                    <div id="upload-progress" class="upload-progress" style="display: none;">
+                        <div class="spinner"></div>
+                        <p>Parsing your resume with AI...</p>
+                    </div>
+                </section>
+
+                <!-- Profile Form -->
+                <section class="profile-form-section">
+                    <form id="profile-form" class="profile-form">
+                        <div class="form-group">
+                            <label>Full Name</label>
+                            <input type="text" id="name" placeholder="Your Name">
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Email</label>
+                                <input type="email" id="email" placeholder="email@example.com" readonly>
+                            </div>
+                            <div class="form-group">
+                                <label>Phone</label>
+                                <input type="tel" id="phone" placeholder="+1 234 567 8900">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Skills</label>
+                            <div class="skills-input-container">
+                                <input type="text" id="skill-input" placeholder="Type a skill and press Enter">
+                                <div id="skills-list" class="skills-list">
+                                    <!-- Skills pills will go here -->
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Years of Experience</label>
+                                <input type="number" id="experience" min="0" max="50">
+                            </div>
+                            <div class="form-group">
+                                <label>Preferred Seniority</label>
+                                <select id="seniority">
+                                    <option value="">Any</option>
+                                    <option value="Intern">Intern</option>
+                                    <option value="Junior">Junior</option>
+                                    <option value="Mid">Mid-Level</option>
+                                    <option value="Senior">Senior</option>
+                                    <option value="Lead">Lead</option>
+                                    <option value="Manager">Manager</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Preferred Location</label>
+                            <input type="text" id="location" placeholder="e.g. San Francisco, Remote">
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="submit" class="btn-primary" id="save-btn">Save Profile</button>
+                        </div>
+                    </form>
+                </section>
+            </div>
+        </main>
+
+        <!-- Toast Container -->
+        <div class="toast-container" id="toast-container"></div>
+    </div>
+
+    <script src="js/particles.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/profile.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JobSwipe | Dashboard</title>
+
+    <link rel="icon"
+        href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💼</text></svg>">
+    <link rel="stylesheet" href="css/variables.css">
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/dashboard.css">
+</head>
+
+<body>
+    <canvas id="particle-canvas"></canvas>
+
+    <div class="app">
+        <!-- Header -->
+        <header class="app-header">
+            <div class="logo">
+                <div class="logo-icon">💼</div>
+                <span>JobSwipe</span>
+            </div>
+
+            <nav style="display: flex; gap: 1rem; align-items: center;">
+                <a href="index.html" class="nav-link">Swipe</a>
+                <a href="applied.html" class="nav-link">Applied</a>
+                <a href="dashboard.html" class="nav-link active">Dashboard</a>
+                <a href="profile.html" class="nav-link">Profile</a>
+            </nav>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="dashboard-container">
+                <div class="dashboard-header">
+                    <h1>Your Career Dashboard</h1>
+                    <p class="subtitle">Insights and analytics to power your job search.</p>
+                </div>
+
+                <!-- Stats Grid -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon">👀</div>
+                        <div class="stat-number" id="stats-viewed">0</div>
+                        <div class="stat-label">Jobs Viewed</div>
+                    </div>
+                    <div class="stat-card highlight">
+                        <div class="stat-icon">🚀</div>
+                        <div class="stat-number" id="stats-applied">0</div>
+                        <div class="stat-label">Applications</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">⭐</div>
+                        <div class="stat-number" id="stats-saved">0</div>
+                        <div class="stat-label">Saved Jobs</div>
+                    </div>
+                </div>
+
+                <!-- Profile Completion -->
+                <section class="dashboard-section">
+                    <h2>Profile Strength</h2>
+                    <div class="progress-bar-container">
+                        <div class="progress-bar" id="profile-progress" style="width: 0%"></div>
+                    </div>
+                    <p id="profile-message">Complete your profile to get better matches.</p>
+                </section>
+
+                <!-- Skill Gaps -->
+                <section class="dashboard-section">
+                    <h2>Skill Insights</h2>
+                    <div class="skills-insight-container">
+                        <!-- Populated by JS -->
+                        <div id="missing-skills-chart"></div>
+                    </div>
+                </section>
+
+                <!-- Recommended Actions -->
+                <section class="dashboard-section">
+                    <h2>Recommended Actions</h2>
+                    <div class="action-list">
+                        <div class="action-item" onclick="location.href='profile.html'">
+                            <div class="action-icon">📝</div>
+                            <div class="action-content">
+                                <h3>Update your resume</h3>
+                                <p>Ensure your latest skills are parsed.</p>
+                            </div>
+                            <div class="action-arrow">→</div>
+                        </div>
+                        <div class="action-item" onclick="location.href='index.html'">
+                            <div class="action-icon">🔍</div>
+                            <div class="action-content">
+                                <h3>Swipe 10 more jobs</h3>
+                                <p>Help the algorithm learn your preferences.</p>
+                            </div>
+                            <div class="action-arrow">→</div>
+                        </div>
+                    </div>
+                </section>
+
+            </div>
+        </main>
+    </div>
+
+    <script src="js/particles.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/dashboard.js"></script>
+</body>
+
+</html>

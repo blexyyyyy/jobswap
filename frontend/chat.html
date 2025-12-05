@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JobSwipe | Chat</title>
+
+    <link rel="icon"
+        href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💼</text></svg>">
+    <link rel="stylesheet" href="css/variables.css">
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/chat.css">
+</head>
+
+<body>
+    <div class="chat-app">
+        <!-- Header -->
+        <header class="chat-header">
+            <button class="btn-back" onclick="window.location.href='applied.html'">
+                ← Back
+            </button>
+            <div class="chat-header-info">
+                <h1 class="chat-title" id="job-title">Loading...</h1>
+                <p class="chat-company" id="job-company"></p>
+            </div>
+        </header>
+
+        <!-- Messages Container -->
+        <div class="messages-container" id="messages-container">
+            <!-- Messages will be inserted here -->
+        </div>
+
+        <!-- Input Area -->
+        <div class="chat-input-container">
+            <input type="text" id="message-input" class="chat-input" placeholder="Type a message..." autocomplete="off">
+            <button class="btn-send" id="send-btn">
+                Send →
+            </button>
+        </div>
+    </div>
+
+    <script src="js/api.js"></script>
+    <script src="js/chat.js"></script>
+</body>
+
+</html>

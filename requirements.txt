@@ -1,0 +1,21 @@
+# Core
+python-dotenv
+pydantic>=2.0
+
+# LLM / Embeddings
+google-genai
+tiktoken          # optional but useful
+
+# Vector DB
+chromadb
+
+# File Parsing
+pypdf
+python-docx
+docx2txt
+
+# Web / UI
+streamlit
+
+# Misc
+requests
