@@ -93,11 +93,21 @@ class TokenResponse(BaseModel):
 
 # ========== Database Helpers ==========
 
+from database.connection import get_db_connection
+
 def get_db():
-    """Get database connection."""
+    """Get database connection (Dependency).
+    
+    NOTE: This is a legacy helper for "Depends(get_db)" usage if we were yielding.
+    But since we switched to context managers inside endpoints for safety,
+    we can deprecate this or make it yield using the manager.
+    """
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
-    return conn
+    try:
+        yield conn
+    finally:
+        conn.close()
 
 
 def hash_password(password: str) -> str:
@@ -137,11 +147,10 @@ async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(s
     token = credentials.credentials
     payload = decode_token(token)
     
-    conn = get_db()
-    cursor = conn.cursor()
-    cursor.execute("SELECT * FROM users WHERE id = ?", (int(payload["sub"]),))
-    user = cursor.fetchone()
-    conn.close()
+    with get_db_connection() as conn:
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM users WHERE id = ?", (int(payload["sub"]),))
+        user = cursor.fetchone()
     
     if not user:
         raise HTTPException(status_code=401, detail="User not found")
@@ -154,25 +163,23 @@ async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(s
 @app.post("/api/auth/register", response_model=TokenResponse)
 async def register(user: UserRegister):
     """Register a new user."""
-    conn = get_db()
-    cursor = conn.cursor()
     
-    # Check if email already exists
-    cursor.execute("SELECT id FROM users WHERE email = ?", (user.email,))
-    if cursor.fetchone():
-        conn.close()
-        raise HTTPException(status_code=400, detail="Email already registered")
-    
-    # Create user
-    password_hash = hash_password(user.password)
-    cursor.execute(
-        "INSERT INTO users (email, password_hash, name) VALUES (?, ?, ?)",
-        (user.email, password_hash, user.name)
-    )
-    conn.commit()
-    user_id = cursor.lastrowid
-    
-    conn.close()
+    with get_db_connection() as conn:
+        cursor = conn.cursor()
+        
+        # Check if email already exists
+        cursor.execute("SELECT id FROM users WHERE email = ?", (user.email,))
+        if cursor.fetchone():
+            raise HTTPException(status_code=400, detail="Email already registered")
+        
+        # Create user
+        password_hash = hash_password(user.password)
+        cursor.execute(
+            "INSERT INTO users (email, password_hash, name) VALUES (?, ?, ?)",
+            (user.email, password_hash, user.name)
+        )
+        conn.commit()
+        user_id = cursor.lastrowid
     
     # Generate token
     token = create_access_token(user_id, user.email)
@@ -186,12 +193,10 @@ async def register(user: UserRegister):
 @app.post("/api/auth/login", response_model=TokenResponse)
 async def login(user: UserLogin):
     """Login and get access token."""
-    conn = get_db()
-    cursor = conn.cursor()
-    
-    cursor.execute("SELECT * FROM users WHERE email = ?", (user.email,))
-    db_user = cursor.fetchone()
-    conn.close()
+    with get_db_connection() as conn:
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM users WHERE email = ?", (user.email,))
+        db_user = cursor.fetchone()
     
     if not db_user:
         raise HTTPException(status_code=401, detail="Invalid email or password")
@@ -230,33 +235,31 @@ async def get_me(current_user: dict = Depends(get_current_user)):
 @app.put("/api/auth/profile")
 async def update_profile(profile: UserProfile, current_user: dict = Depends(get_current_user)):
     """Update user profile."""
-    conn = get_db()
-    cursor = conn.cursor()
-    
-    cursor.execute("""
-        UPDATE users SET
-            name = COALESCE(?, name),
-            phone = COALESCE(?, phone),
-            skills = COALESCE(?, skills),
-            experience_years = COALESCE(?, experience_years),
-            preferred_location = COALESCE(?, preferred_location),
-            preferred_seniority = COALESCE(?, preferred_seniority),
-            resume_text = COALESCE(?, resume_text),
-            updated_at = CURRENT_TIMESTAMP
-        WHERE id = ?
-    """, (
-        profile.name,
-        profile.phone,
-        profile.skills,
-        profile.experience_years,
-        profile.preferred_location,
-        profile.preferred_seniority,
-        profile.resume_text,
-        current_user["id"]
-    ))
-    
-    conn.commit()
-    conn.close()
+    with get_db_connection() as conn:
+        cursor = conn.cursor()
+        
+        cursor.execute("""
+            UPDATE users SET
+                name = COALESCE(?, name),
+                phone = COALESCE(?, phone),
+                skills = COALESCE(?, skills),
+                experience_years = COALESCE(?, experience_years),
+                preferred_location = COALESCE(?, preferred_location),
+                preferred_seniority = COALESCE(?, preferred_seniority),
+                resume_text = COALESCE(?, resume_text),
+                updated_at = CURRENT_TIMESTAMP
+            WHERE id = ?
+        """, (
+            profile.name,
+            profile.phone,
+            profile.skills,
+            profile.experience_years,
+            profile.preferred_location,
+            profile.preferred_seniority,
+            profile.resume_text,
+            current_user["id"]
+        ))
+        conn.commit()
     
     return {"message": "Profile updated successfully"}
 
@@ -266,79 +269,121 @@ async def update_profile(profile: UserProfile, current_user: dict = Depends(get_
 @app.get("/api/jobs/feed")
 async def get_job_feed(current_user: dict = Depends(get_current_user)):
     """Get job feed for the current user (excluding already swiped jobs)."""
-    conn = get_db()
-    cursor = conn.cursor()
-    
-    # Get jobs not yet swiped by user
-    cursor.execute("""
-        SELECT j.* FROM jobs j
-        WHERE j.id NOT IN (
-            SELECT job_id FROM user_swipes WHERE user_id = ?
-        )
-        ORDER BY j.created_at DESC
-        LIMIT 20
-    """, (current_user["id"],))
-    
-    jobs = [dict(row) for row in cursor.fetchall()]
-    conn.close()
-    
-    # Format jobs for frontend
-    from matching.explanations import explanation_generator
-    
-    # Get user profile for matching
-    user_profile = {
-        "skills": current_user["skills"].split(",") if current_user["skills"] else [],
-        "experience_years": current_user["experience_years"],
-        "preferred_location": current_user["preferred_location"],
-        "preferred_seniority": current_user["preferred_seniority"],
-        "resume_text": current_user["resume_text"]
-    }
+    try:
+        all_jobs = []
+        with get_db_connection() as conn:
+            cursor = conn.cursor()
+            
+            # Get jobs not yet swiped by user
+            cursor.execute("""
+                SELECT j.* FROM jobs j
+                WHERE j.id NOT IN (
+                    SELECT job_id FROM user_swipes WHERE user_id = ?
+                )
+                ORDER BY j.created_at DESC
+            """, (current_user["id"],))
+            
+            all_jobs = [dict(row) for row in cursor.fetchall()]
+        
+        # Format jobs and calculate initial sort score
+        from matching.explanations import explanation_generator
+        
+        user_profile = {
+            "skills": current_user["skills"].split(",") if current_user["skills"] else [],
+            "experience_years": current_user["experience_years"],
+            "preferred_location": current_user["preferred_location"],
+            "preferred_seniority": current_user["preferred_seniority"],
+            "resume_text": current_user["resume_text"]
+        }
+        
+        user_skills_set = set(s.strip().lower() for s in user_profile["skills"])
 
-    for job in jobs:
-        # Convert skills from string to array
-        if job.get("skills"):
-            job["skills"] = [s.strip() for s in job["skills"].split(",")]
-        else:
-            job["skills"] = []
-        
-        # Add match score and explanation (mock/lightweight for feed, could be pre-calculated)
-        # Note: calling LLM for 20 jobs might be slow, for now using a lightweight heuristic or cached explanation
-        # For this MVP, we will stick to the heuristic score but add a placeholder for explanation
-        # that the frontend can fetch on demand or we accept the latency for "premium" feel.
-        # Let's use the heuristic but enrich it if we had the compute.
-        
-        job["match_score"] = 75 + (hash(job["title"]) % 20)
-        job["logo_emoji"] = ["🚀", "💡", "📊", "🤖", "☁️", "🌱", "🏗️", "💰"][job["id"] % 8]
-        
-        # Use Gemini to generate explanation
-        try:
-            # Prepare minimal job data for LLM to save tokens/latency
-            job_summary = {
-                "title": job["title"],
-                "company": job["company"],
-                "location": job["location"],
-                "skills": job["skills"],
-                "description": job["description"][:500] if job["description"] else ""
-            }
-            
-            explanation = explanation_generator.generate_explanation(user_profile, job_summary)
-            job["match_explanation"] = explanation
-            
-            # Update match score based on LLM assessment if available, otherwise keep heuristic
-            if explanation.get("match_score"):
-                job["match_score"] = explanation["match_score"]
+        processed_jobs = []
+        for job in all_jobs:
+            # Convert skills from string to array
+            if job.get("skills"):
+                job["skills"] = [s.strip() for s in job["skills"].split(",")]
+            else:
+                job["skills"] = []
                 
-        except Exception as e:
-            print(f"Error generating explanation for job {job['id']}: {e}")
-            # Fallback to heuristic if LLM fails
-            common_count = len(set(job["skills"]) & set(user_profile["skills"]))
-            job["match_explanation"] = {
-                "match_reason": f"Matches {common_count} of your skills.",
-                "match_type": "neutral",
-                "missing_skills": []
-            }
-    
-    return {"jobs": jobs}
+            # Initial Scoring (for sorting)
+            job_skills_set = set(s.lower() for s in job["skills"])
+            overlap = len(user_skills_set & job_skills_set)
+            
+            # Simple heuristic score: overlap * 10, capped at 90 base
+            # If title matches "Senior" and user is "Senior", bonus
+            score = 50 + (overlap * 10)
+            
+            # Title match bonus
+            if user_profile["preferred_seniority"] and user_profile["preferred_seniority"].lower() in job["title"].lower():
+                score += 10
+            
+            job["match_score"] = min(95, score)
+            job["logo_emoji"] = ["🚀", "💡", "📊", "🤖", "☁️", "🌱", "🏗️", "💰"][job["id"] % 8]
+            processed_jobs.append(job)
+
+        # Sort by heuristic score DESC
+        processed_jobs.sort(key=lambda x: x["match_score"], reverse=True)
+        
+        # Take all jobs (user asked for all 74)
+        jobs = processed_jobs
+            
+        # === Parallel Explanation Generation ===
+        import asyncio
+        from matching.explanations import explanation_generator
+        
+        async def fetch_explanation(job):
+            try:
+                # Clean description
+                raw_desc = job.get("description", "") or ""
+                try:
+                    from bs4 import BeautifulSoup
+                    import re
+                    soup = BeautifulSoup(raw_desc, "html.parser")
+                    clean_desc = soup.get_text(separator=" ")
+                    clean_desc = re.sub(r'\s+', ' ', clean_desc).strip()
+                    job["description"] = clean_desc[:500] 
+                except Exception:
+                    job["description"] = raw_desc[:500]
+
+                job_summary = {
+                    "title": job["title"],
+                    "company": job["company"],
+                    "location": job["location"],
+                    "skills": job["skills"],
+                    "description": job["description"]
+                }
+                
+                # Run sync LLM call in thread pool to avoid blocking event loop
+                explanation = await asyncio.to_thread(explanation_generator.generate_explanation, user_profile, job_summary)
+                
+                job["match_explanation"] = explanation
+                if explanation.get("match_score"):
+                    job["match_score"] = explanation["match_score"]
+            except Exception as e:
+                # print(f"Error generating explanation for job {job['id']}: {e}")
+                # Fallback
+                common_count = len(set(job["skills"]) & set(user_profile["skills"]))
+                job["match_explanation"] = {
+                    "match_reason": f"Matches {common_count} of your skills.",
+                    "match_type": "neutral",
+                    "match_score": 50 + (common_count * 10),
+                    "missing_skills": [],
+                    "career_tip": "Review requirements."
+                }
+
+        # Run all explanation tasks concurrently
+        # Limit concurrency to avoid hitting rate limits too hard if we had many jobs, 
+        # but for 20 jobs it should be fine.
+        if jobs:
+            await asyncio.gather(*[fetch_explanation(job) for job in jobs])
+        
+        return {"jobs": jobs}
+    except Exception as e:
+        import traceback
+        with open("server_error.log", "a") as f:
+            f.write(traceback.format_exc())
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 @app.post("/api/swipe")
@@ -347,20 +392,17 @@ async def record_swipe(swipe: SwipeAction, current_user: dict = Depends(get_curr
     if swipe.action not in ("apply", "skip", "save"):
         raise HTTPException(status_code=400, detail="Invalid action")
     
-    conn = get_db()
-    cursor = conn.cursor()
-    
     try:
-        cursor.execute(
-            "INSERT OR REPLACE INTO user_swipes (user_id, job_id, action) VALUES (?, ?, ?)",
-            (current_user["id"], swipe.job_id, swipe.action)
-        )
-        conn.commit()
+        with get_db_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute(
+                "INSERT OR REPLACE INTO user_swipes (user_id, job_id, action) VALUES (?, ?, ?)",
+                (current_user["id"], swipe.job_id, swipe.action)
+            )
+            conn.commit()
     except Exception as e:
-        conn.close()
         raise HTTPException(status_code=400, detail=str(e))
     
-    conn.close()
     return {"message": f"Recorded {swipe.action} for job {swipe.job_id}"}
 
 
@@ -532,30 +574,38 @@ async def send_message(job_id: int, msg: ChatMessage, current_user: dict = Depen
 
 @app.post("/api/jobs/scrape")
 async def scrape_jobs(request: JobScrapeRequest, current_user: dict = Depends(get_current_user)):
-    """Scrape jobs from TimesJobs and add to database."""
+    """Scrape jobs from multiple sources (Remotive, RemoteOK, etc.) and add to database."""
     try:
-        from scrapers.timesjobs_scraper import fetch_timesjobs
+        from scrapers.unified_scraper import fetch_all_jobs
         from database.db_manager import insert_job
         
         # Scrape jobs
-        jobs = fetch_timesjobs(
-            keywords=request.keywords,
-            location=request.location,
-            max_pages=min(request.max_jobs // 10, 3)  # 10 jobs per page
+        # Sources: Remotive, RemoteOK, Arbeitnow, WeWorkRemotely, Jobicy
+        # Limit per source = max_jobs / 5 roughly
+        limit_per_source = max(2, request.max_jobs // 4)
+        
+        jobs = fetch_all_jobs(
+            query=request.keywords,
+            limit_per_source=limit_per_source
         )
         
-        # Insert into database
         inserted = 0
-        for job in jobs[:request.max_jobs]:
+        for job in jobs[:request.max_jobs + 5]: # Allow small buffer
             try:
-                insert_job(job, job.get("summary", ""))
+                if not job.get("title") or not job.get("link"):
+                    continue
+
+                desc = job.get("description", "") or job.get("summary", "")
+                insert_job(job, desc)
                 inserted += 1
-            except Exception:
+            except Exception as e:
+                print(f"Failed to insert job: {e}")
                 continue
         
         return {
-            "message": f"Successfully scraped and added {inserted} jobs",
-            "count": inserted
+            "message": f"Successfully scraped and added {inserted} jobs from 5+ sources",
+            "count": inserted,
+            "sources": list(set(j.get('source', 'Unknown') for j in jobs))
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

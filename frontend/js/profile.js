@@ -20,23 +20,46 @@ const Profile = {
         const dropZone = document.getElementById('drop-zone');
         const fileInput = document.getElementById('resume-upload');
 
+        if (!dropZone || !fileInput) {
+            console.error("Drop zone or file input not found");
+            return;
+        }
+
         dropZone.addEventListener('click', () => fileInput.click());
 
-        dropZone.addEventListener('dragover', (e) => {
-            e.preventDefault();
-            dropZone.classList.add('dragover');
+        // Prevent default drag behaviors on window to prevent opening file in browser
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            dropZone.addEventListener(eventName, preventDefaults, false);
+            document.body.addEventListener(eventName, preventDefaults, false);
         });
 
-        dropZone.addEventListener('dragleave', () => {
-            dropZone.classList.remove('dragover');
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropZone.addEventListener(eventName, highlight, false);
         });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropZone.addEventListener(eventName, unhighlight, false);
+        });
+
+        function highlight(e) {
+            dropZone.classList.add('dragover');
+        }
+
+        function unhighlight(e) {
+            dropZone.classList.remove('dragover');
+        }
 
         dropZone.addEventListener('drop', (e) => {
-            e.preventDefault();
-            dropZone.classList.remove('dragover');
+            console.log("File dropped", e.dataTransfer.files);
             const files = e.dataTransfer.files;
             if (files.length) this.handleFileUpload(files[0]);
         });
+
 
         fileInput.addEventListener('change', (e) => {
             if (e.target.files.length) this.handleFileUpload(e.target.files[0]);

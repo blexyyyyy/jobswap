@@ -16,8 +16,28 @@ const Cards = {
             .map(skill => `<span class="skill-tag">${this.escapeHtml(skill)}</span>`)
             .join('');
 
+        // Determine match category and styling
+        const score = job.match_score || 0;
+        let matchClass = 'medium';
+        let explanationTitle = 'Why this matches you';
+        let explanationIcon = '💡';
+
+        if (score >= 90) {
+            matchClass = 'high';
+            explanationTitle = 'Perfect Match for you';
+            explanationIcon = '✨';
+        } else if (score < 30) {
+            matchClass = 'low';
+            explanationTitle = 'This is not the match for you';
+            explanationIcon = '⚠️';
+        } else {
+            matchClass = 'medium';
+            explanationTitle = 'Good Match';
+            explanationIcon = '👍';
+        }
+
         card.innerHTML = `
-            <div class="match-score">${job.match_score || 85}% Match</div>
+            <div class="match-score">${score}% Match</div>
             
             <div class="swipe-label like">APPLY</div>
             <div class="swipe-label nope">SKIP</div>
@@ -51,8 +71,8 @@ const Cards = {
             </div>
 
             <!-- New Match Explanation Section -->
-            <div class="match-explanation">
-                <div class="explanation-title">💡 Why this matches you</div>
+            <div class="match-explanation ${matchClass}">
+                <div class="explanation-title">${explanationIcon} ${explanationTitle}</div>
                 <p class="explanation-text">
                     ${job.match_explanation?.match_reason || 'Good fit based on your profile.'}
                 </p>

@@ -330,6 +330,7 @@
     overflow: hidden;
     display: -webkit-box;
     -webkit-line-clamp: 4;
+    line-clamp: 4;
     -webkit-box-orient: vertical;
 }
 
@@ -557,4 +558,98 @@
         opacity: 1;
         transform: translateY(0);
     }
+}
+
+/* ========================================
+   NEW MATCH EXPLANATION STYLES
+   ======================================== */
+
+.match-explanation {
+    margin-top: var(--space-lg);
+    padding: var(--space-md);
+    border-radius: var(--radius-lg);
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--border-subtle);
+    font-size: var(--font-size-sm);
+    transition: all 0.3s ease;
+}
+
+/* Dynamic Scoring Styles */
+.match-explanation.high {
+    background: rgba(16, 185, 129, 0.1);
+    border-color: rgba(16, 185, 129, 0.3);
+}
+
+.match-explanation.medium {
+    background: rgba(245, 158, 11, 0.1);
+    border-color: rgba(245, 158, 11, 0.3);
+}
+
+.match-explanation.low {
+    background: rgba(239, 68, 68, 0.1);
+    border-color: rgba(239, 68, 68, 0.3);
+}
+
+.explanation-title {
+    font-weight: var(--font-weight-bold);
+    color: var(--text-primary);
+    margin-bottom: var(--space-xs);
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
+}
+
+.match-explanation.high .explanation-title {
+    color: #34d399;
+}
+
+.match-explanation.medium .explanation-title {
+    color: #fbbf24;
+}
+
+.match-explanation.low .explanation-title {
+    color: #f87171;
+}
+
+.explanation-text {
+    color: var(--text-secondary);
+    line-height: 1.5;
+    margin-bottom: var(--space-md);
+}
+
+/* Missing Skills */
+.missing-skills {
+    margin-top: var(--space-sm);
+    padding-top: var(--space-sm);
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    align-items: center;
+}
+
+.match-explanation.high .missing-skills {
+    border-top-color: rgba(16, 185, 129, 0.2);
+}
+
+.match-explanation.medium .missing-skills {
+    border-top-color: rgba(245, 158, 11, 0.2);
+}
+
+.match-explanation.low .missing-skills {
+    border-top-color: rgba(239, 68, 68, 0.2);
+}
+
+.missing-label {
+    color: var(--text-tertiary);
+    font-size: var(--font-size-xs);
+    margin-right: 4px;
+}
+
+.skill-tag.missing {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px dashed var(--border-medium);
+    color: var(--text-secondary);
+    font-size: var(--font-size-xs);
+    padding: 2px 8px;
 }

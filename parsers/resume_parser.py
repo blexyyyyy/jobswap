@@ -1,10 +1,11 @@
 import json
 from typing import Dict, Any, List
-from core.llm_client import LLMClient
+from core.llm_client import client, GEMINI_MODEL
+from google.genai import types
 
 class ResumeParser:
     def __init__(self):
-        self.llm_client = LLMClient()
+        pass
 
     def parse_resume(self, text: str) -> Dict[str, Any]:
         """
@@ -29,9 +30,16 @@ class ResumeParser:
         """
 
         try:
-            response = self.llm_client.generate_content(prompt)
+            response = client.models.generate_content(
+                model=GEMINI_MODEL,
+                contents=prompt,
+                config=types.GenerateContentConfig(
+                    temperature=0.1,
+                    response_mime_type="application/json"
+                )
+            )
             # Basic cleanup to ensure json matching
-            response_text = response.strip()
+            response_text = response.text.strip() if response.text else ""
             if response_text.startswith("```json"):
                 response_text = response_text[7:]
             if response_text.endswith("```"):

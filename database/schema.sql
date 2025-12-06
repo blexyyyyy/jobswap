@@ -1,4 +1,18 @@
 PRAGMA foreign_keys = ON;
+PRAGMA journal_mode = WAL;  -- Better concurrency
+PRAGMA synchronous = NORMAL;
+
+-- Auto-cleanup Trigger: Remove duplicates if they sneak in
+CREATE TRIGGER IF NOT EXISTS trg_cleanup_jobs
+AFTER INSERT ON jobs
+BEGIN
+    DELETE FROM jobs 
+    WHERE id NOT IN (
+        SELECT MIN(id) 
+        FROM jobs 
+        GROUP BY title, company
+    );
+END;
 
 -- Users table for authentication
 CREATE TABLE IF NOT EXISTS users (
@@ -77,4 +91,17 @@ CREATE TABLE IF NOT EXISTS messages (
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
     FOREIGN KEY (job_id) REFERENCES jobs(id) ON DELETE CASCADE
+);
+
+-- Tracks how users interact with jobs (for ML training)
+CREATE TABLE IF NOT EXISTS interactions (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id      INTEGER NOT NULL,
+    job_id       INTEGER NOT NULL,
+    semantic_sim REAL,
+    skill_overlap REAL,
+    exp_gap      REAL,
+    location_match REAL,
+    label        INTEGER NOT NULL,  -- 1 = like/save/apply, 0 = skip
+    created_at   TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );

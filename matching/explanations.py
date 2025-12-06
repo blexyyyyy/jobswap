@@ -1,15 +1,28 @@
-from core.llm_client import LLMClient
+from core.llm_client import client, GEMINI_MODEL
+from google.genai import types
 from typing import Dict, Any, List
+import json
+
+def import_json(text):
+    try:
+        return json.loads(text)
+    except:
+        return {
+                "match_reason": "Good potential match based on your profile.",
+                "match_score": 70,
+                "missing_skills": [],
+                "career_tip": "Apply to learn more."
+            }
 
 class ExplanationGenerator:
     def __init__(self):
-        self.llm_client = LLMClient()
+        pass
 
     def generate_explanation(self, candidate_profile: Dict[str, Any], job: Dict[str, Any]) -> Dict[str, Any]:
         """
         Generate a match explanation using LLM.
         """
-        You are an expert career coach AI. determining if a job is a "Good Match" or "Bad Match" for a candidate.
+        prompt = f'''You are an expert career coach AI determining if a job is a "Good Match" or "Bad Match" for a candidate.
         
         Candidate Profile:
         - Skills: {', '.join(candidate_profile.get('skills', []))}
@@ -41,12 +54,19 @@ class ExplanationGenerator:
         5. "career_tip": A 1-sentence actionable tip.
 
         Return strictly as JSON with keys: "match_reason", "match_score", "missing_skills", "career_tip", "match_type".
-        """
+        '''
 
         try:
-            response = self.llm_client.generate_content(prompt)
+            response = client.models.generate_content(
+                model=GEMINI_MODEL,
+                contents=prompt,
+                config=types.GenerateContentConfig(
+                    temperature=0.2,
+                    response_mime_type="application/json"
+                )
+            )
              # Basic cleanup
-            response_text = response.strip()
+            response_text = response.text.strip() if response.text else ""
             if response_text.startswith("```json"):
                 response_text = response_text[7:]
             if response_text.endswith("```"):
@@ -55,13 +75,17 @@ class ExplanationGenerator:
             data = import_json(response_text) # Helper for safe json load
             return data
         except Exception as e:
+            # print(f"Explanation Error: {e}")
             # Fallback
             return {
                 "match_reason": "This job aligns with your skills and experience level.",
                 "match_score": 75,
                 "missing_skills": [],
-                "career_tip": "Highlight your relevant projects in your application."
+                "career_tip": "Highlight your relevant projects in your application.",
+                "match_type": "medium"
             }
+
+explanation_generator = ExplanationGenerator()
 
 def import_json(text):
     import json
