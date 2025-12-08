@@ -41,46 +41,44 @@
 ```text
 jobswipe/
 ├── app/
-│   ├── main.py              # Application entry point
+│   ├── main.py              # FastAPI application entry point
 │   ├── api/                 # API Routes & Dependencies
 │   │   ├── routes/
 │   │   │   ├── auth.py      # Login, Register, Profile, Resume
 │   │   │   ├── jobs.py      # Feed, Saved, Applied
 │   │   │   ├── swipe.py     # Swipe actions
 │   │   │   ├── chat.py      # Messaging
-│   │   │   └── scrape.py    # Job Scraping
+│   │   │   ├── scrape.py    # Job Scraping trigger
+│   │   │   └── apply.py     # Auto-Apply queue
 │   │   └── deps.py          # Dependencies (get_current_user)
 │   ├── core/                # Core Configuration
-│   │   ├── config.py        # Settings (DB Path, Secrets)
+│   │   ├── config.py        # Settings (DB Path, Secrets, SMTP)
 │   │   └── security.py      # Auth Logic (JWT, Hashing)
+│   ├── services/            # Business Logic Layer
+│   │   ├── auth_service.py  # User authentication
+│   │   ├── job_service.py   # Job feed & scraping
+│   │   ├── swipe_service.py # Swipe handling
+│   │   ├── user_service.py  # Profile & resume processing
+│   │   └── apply_service.py # Auto-apply email service
 │   └── schemas/             # Pydantic Data Models
-│       ├── user.py          # User schemas
-│       ├── job.py           # Job schemas
-│       └── chat.py          # Chat schemas
+│       ├── user.py, job.py, chat.py, apply.py
 ├── database/
+│   ├── connection.py        # Unified DB connection manager
 │   ├── db_manager.py        # Low-level DB utilities
 │   └── schema.sql           # Database schema definitions
-├── frontend/                # Premium Web Interface
-│   ├── css/
-│   │   ├── variables.css    # Design tokens (colors, fonts)
-│   │   ├── base.css         # Reset and global styles
-│   │   ├── components.css   # Cards, Buttons, Inputs
-│   │   ├── animations.css   # Keyframes for swipes/fades
-│   │   ├── explanation.css  # AI Badge & Insight styles
-│   │   └── dashboard.css    # Analytics dashboard styles
-│   ├── js/
-│   │   ├── app.js           # Main app controller
-│   │   ├── api.js           # Backend communication & Auth handling
-│   │   ├── auth.js          # Login/Register logic
-│   │   ├── cards.js         # Dynamic card rendering
-│   │   ├── swipe.js         # Touch/Mouse gesture handler
-│   │   ├── profile.js       # Resume upload & profile handling
-│   │   └── dashboard.js     # Stats & Visualization
-│   ├── index.html           # Main Swipe Interface
-│   ├── profile.html         # User Profile & Resume Upload
-│   ├── dashboard.html       # Career Analytics
-│   ├── login.html           # Authentication Page
-│   └── applied.html         # Application History
+├── frontend/                # Vite-Powered Web Interface
+│   ├── vite.config.js       # Vite configuration with API proxy
+│   ├── package.json         # Node dependencies
+│   ├── src/
+│   │   ├── css/             # Modular stylesheets
+│   │   │   ├── variables.css, base.css, components.css
+│   │   │   ├── animations.css, explanation.css, dashboard.css
+│   │   └── js/              # ES Modules
+│   │       ├── app.js, api.js, auth.js, cards.js
+│   │       ├── swipe.js, profile.js, dashboard.js
+│   │       ├── particles.js, applied.js
+│   ├── index.html, login.html, profile.html
+│   ├── applied.html, dashboard.html, chat.html
 ├── matching/
 │   ├── explanations.py      # Gemini Prompt Engineering for Insights
 │   ├── scorer.py            # Heuristic match scoring
@@ -88,12 +86,28 @@ jobswipe/
 ├── parsers/
 │   └── resume_parser.py     # LLM-based Resume Extractor
 ├── scrapers/
-│   └── timesjobs_scraper.py # Real-time job board scraper
+│   └── unified_scraper.py   # Multi-source job aggregator
+│   │   └── Sources: Remotive, RemoteOK, Arbeitnow, WeWorkRemotely, Jobicy
+├── ingestion/               # Data Pipeline
+│   ├── cleaners/            # Job normalization
+│   └── pipeline/            # Ingestion workflows
+├── tests/                   # Verification Scripts
+│   ├── verify_scraping.py, verify_auto_apply.py, check_db.py
 ├── utils/
-│   └── file_handler.py      # PDF/DOCX Text Extraction
-├── .env                     # Environment variables (API Keys)
+│   ├── file_handler.py      # PDF/DOCX Text Extraction
+│   └── email_client.py      # SMTP Email Sender
+├── scripts/                 # Database migration scripts
+├── core/
+│   └── llm_client.py        # Gemini API wrapper
 ├── requirements.txt         # Python dependencies
 └── README.md                # Project Documentation
+
+# Not tracked (local only):
+# .env                       # API keys & secrets
+# .venv/                     # Python virtual environment
+# *.db                       # SQLite databases
+# node_modules/              # Node dependencies
+# chroma_db/                 # Vector store data
 ```
 
 ---

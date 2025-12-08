@@ -1,1 +1,0 @@
-{"detail":"Database error: no such column: resume_file_path"}
