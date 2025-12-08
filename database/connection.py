@@ -1,8 +1,6 @@
 from contextlib import contextmanager
 import sqlite3
-import os
-
-DB_PATH = os.getenv("DB_PATH", "database/jobmatcher.db")
+from app.core.config import DB_PATH
 
 @contextmanager
 def get_db_connection():

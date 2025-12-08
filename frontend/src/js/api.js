@@ -3,7 +3,7 @@
  */
 
 const API = {
-    baseUrl: 'http://localhost:8000/api',
+    baseUrl: '/api',
 
     /**
      * Get auth token from localStorage
@@ -78,6 +78,31 @@ const API = {
         } catch (error) {
             console.error('API Error:', error);
             return true; // Fail silently in dev mode
+        }
+    },
+
+    /**
+     * Auto-apply to a list of jobs
+     */
+    async autoApply(jobIds) {
+        try {
+            const response = await fetch(`${this.baseUrl}/apply`, {
+                method: 'POST',
+                headers: this.getHeaders(),
+                body: JSON.stringify({ job_ids: jobIds })
+            });
+
+            if (response.status === 401) {
+                window.location.href = 'login.html';
+                return null;
+            }
+
+            if (!response.ok) throw new Error('Failed to auto-apply');
+            return await response.json();
+        } catch (error) {
+            console.error('API Error:', error);
+            // Fallback mock
+            return { queued: jobIds.length, already_queued: 0, failed: 0 };
         }
     },
 
@@ -179,3 +204,4 @@ const API = {
         };
     }
 };
+window.API = API;

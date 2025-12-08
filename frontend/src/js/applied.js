@@ -102,3 +102,6 @@ const AppliedJobs = {
 document.addEventListener('DOMContentLoaded', () => {
     AppliedJobs.init();
 });
+
+// Expose to window for module scripts
+window.AppliedJobs = AppliedJobs;

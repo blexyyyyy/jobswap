@@ -254,3 +254,6 @@ const Profile = {
 };
 
 document.addEventListener('DOMContentLoaded', () => Profile.init());
+
+// Expose to window for module scripts
+window.Profile = Profile;

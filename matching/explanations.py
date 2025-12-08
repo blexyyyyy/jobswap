@@ -57,6 +57,8 @@ class ExplanationGenerator:
         '''
 
         try:
+            print(f"[ExplanationGen] Generating for job: {job.get('title')}")
+            print(f"[ExplanationGen] User skills: {candidate_profile.get('skills', [])}")
             response = client.models.generate_content(
                 model=GEMINI_MODEL,
                 contents=prompt,
@@ -67,15 +69,17 @@ class ExplanationGenerator:
             )
              # Basic cleanup
             response_text = response.text.strip() if response.text else ""
+            print(f"[ExplanationGen] Raw response: {response_text[:200]}...")
             if response_text.startswith("```json"):
                 response_text = response_text[7:]
             if response_text.endswith("```"):
                 response_text = response_text[:-3]
 
             data = import_json(response_text) # Helper for safe json load
+            print(f"[ExplanationGen] Parsed data: {data}")
             return data
         except Exception as e:
-            # print(f"Explanation Error: {e}")
+            print(f"[ExplanationGen ERROR] {e}")
             # Fallback
             return {
                 "match_reason": "This job aligns with your skills and experience level.",

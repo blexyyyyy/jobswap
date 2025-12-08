@@ -2,17 +2,6 @@ PRAGMA foreign_keys = ON;
 PRAGMA journal_mode = WAL;  -- Better concurrency
 PRAGMA synchronous = NORMAL;
 
--- Auto-cleanup Trigger: Remove duplicates if they sneak in
-CREATE TRIGGER IF NOT EXISTS trg_cleanup_jobs
-AFTER INSERT ON jobs
-BEGIN
-    DELETE FROM jobs 
-    WHERE id NOT IN (
-        SELECT MIN(id) 
-        FROM jobs 
-        GROUP BY title, company
-    );
-END;
 
 -- Users table for authentication
 CREATE TABLE IF NOT EXISTS users (
@@ -46,22 +35,6 @@ CREATE TABLE IF NOT EXISTS candidates (
 
 -- Jobs table
 CREATE TABLE IF NOT EXISTS jobs (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    title TEXT,
-    company TEXT,
-    location TEXT,
-    seniority TEXT,
-    skills TEXT,          -- comma-separated or JSON string
-    description TEXT,
-    raw_text TEXT,        -- original job posting text
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-);
-
--- Matches history (optional, but future-proof)
-CREATE TABLE IF NOT EXISTS matches (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    candidate_id INTEGER NOT NULL,
-    job_id INTEGER NOT NULL,
     score REAL NOT NULL,
     explanation TEXT,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
@@ -105,3 +78,16 @@ CREATE TABLE IF NOT EXISTS interactions (
     label        INTEGER NOT NULL,  -- 1 = like/save/apply, 0 = skip
     created_at   TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+-- Auto-cleanup Trigger: Remove duplicates if they sneak in
+CREATE TRIGGER IF NOT EXISTS trg_cleanup_jobs
+AFTER INSERT ON jobs
+BEGIN
+    DELETE FROM jobs 
+    WHERE id NOT IN (
+        SELECT MIN(id) 
+        FROM jobs 
+        GROUP BY title, company
+    );
+END;
+

@@ -3,7 +3,7 @@
  */
 
 const Auth = {
-    API_URL: 'http://localhost:8000/api',
+    API_URL: '/api',
 
     /**
      * Initialize auth page
@@ -222,3 +222,6 @@ const Auth = {
 document.addEventListener('DOMContentLoaded', () => {
     Auth.init();
 });
+
+// Expose to window for module scripts
+window.Auth = Auth;

@@ -118,3 +118,6 @@ const Dashboard = {
 };
 
 document.addEventListener('DOMContentLoaded', () => Dashboard.init());
+
+// Expose to window for module scripts
+window.Dashboard = Dashboard;

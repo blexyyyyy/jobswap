@@ -41,11 +41,24 @@
 ```text
 jobswipe/
 ├── app/
-│   └── main.py              # FastAPI application entry point & endpoints
-├── core/
-│   └── llm_client.py        # Wrapper for Google Gemini API
+│   ├── main.py              # Application entry point
+│   ├── api/                 # API Routes & Dependencies
+│   │   ├── routes/
+│   │   │   ├── auth.py      # Login, Register, Profile, Resume
+│   │   │   ├── jobs.py      # Feed, Saved, Applied
+│   │   │   ├── swipe.py     # Swipe actions
+│   │   │   ├── chat.py      # Messaging
+│   │   │   └── scrape.py    # Job Scraping
+│   │   └── deps.py          # Dependencies (get_current_user)
+│   ├── core/                # Core Configuration
+│   │   ├── config.py        # Settings (DB Path, Secrets)
+│   │   └── security.py      # Auth Logic (JWT, Hashing)
+│   └── schemas/             # Pydantic Data Models
+│       ├── user.py          # User schemas
+│       ├── job.py           # Job schemas
+│       └── chat.py          # Chat schemas
 ├── database/
-│   ├── db_manager.py        # Database connection and queries
+│   ├── db_manager.py        # Low-level DB utilities
 │   └── schema.sql           # Database schema definitions
 ├── frontend/                # Premium Web Interface
 │   ├── css/

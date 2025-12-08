@@ -133,3 +133,4 @@ const Cards = {
         return div.innerHTML;
     }
 };
+window.Cards = Cards;

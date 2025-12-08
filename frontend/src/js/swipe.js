@@ -142,3 +142,4 @@ class SwipeHandler {
         document.removeEventListener('touchend', this.handleEnd);
     }
 }
+window.SwipeHandler = SwipeHandler;
