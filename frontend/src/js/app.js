@@ -105,6 +105,12 @@ class JobSwipeApp {
             const card = Cards.createCard(job);
             if (index === 0) {
                 card.classList.add('entering');
+
+                // Fetch explanation for the top card if needed
+                if (!job.match_explanation || !job.match_explanation.match_reason) {
+                    Cards.fetchExplanation(job.id, card);
+                }
+
                 // Add swipe handler to top card only
                 setTimeout(() => {
                     this.attachSwipeHandler(card);
@@ -163,6 +169,9 @@ class JobSwipeApp {
         setTimeout(() => {
             this.currentIndex++;
             this.renderCards();
+
+            // Explanation fetching for the new top card (index 0 relative to render)
+            // is handled inside renderCards() now.
         }, 400);
     }
 

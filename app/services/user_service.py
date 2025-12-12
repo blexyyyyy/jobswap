@@ -91,7 +91,6 @@ class UserService:
                 cursor.execute("""
                     UPDATE users SET
                         name = COALESCE(?, name),
-                        email = COALESCE(?, email),
                         phone = COALESCE(?, phone),
                         skills = COALESCE(?, skills),
                         experience_years = COALESCE(?, experience_years),
@@ -103,7 +102,6 @@ class UserService:
                     WHERE id = ?
                 """, (
                     parsed_data.get("name"),
-                    parsed_data.get("email"),
                     parsed_data.get("phone"),
                     skills_str if skills_str else None,
                     parsed_data.get("experience_years"),

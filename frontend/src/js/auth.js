@@ -66,17 +66,42 @@ const Auth = {
      * Bind form submissions
      */
     bindForms() {
-        // Login form
-        document.getElementById('login-form').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            await this.handleLogin(e.target);
-        });
+        const loginForm = document.getElementById('login-form');
+        const registerForm = document.getElementById('register-form');
 
-        // Register form
-        document.getElementById('register-form').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            await this.handleRegister(e.target);
-        });
+        // Login form - both form submit AND button click
+        if (loginForm) {
+            loginForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                await this.handleLogin(loginForm);
+            });
+
+            // Also add click handler to button as fallback
+            const loginBtn = loginForm.querySelector('.btn-submit');
+            if (loginBtn) {
+                loginBtn.addEventListener('click', async (e) => {
+                    e.preventDefault();
+                    await this.handleLogin(loginForm);
+                });
+            }
+        }
+
+        // Register form - both form submit AND button click
+        if (registerForm) {
+            registerForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                await this.handleRegister(registerForm);
+            });
+
+            // Also add click handler to button as fallback
+            const registerBtn = registerForm.querySelector('.btn-submit');
+            if (registerBtn) {
+                registerBtn.addEventListener('click', async (e) => {
+                    e.preventDefault();
+                    await this.handleRegister(registerForm);
+                });
+            }
+        }
     },
 
     /**
@@ -218,10 +243,15 @@ const Auth = {
     }
 };
 
-// Initialize on DOM ready
-document.addEventListener('DOMContentLoaded', () => {
+// Initialize on DOM ready or immediately if already loaded
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+        Auth.init();
+    });
+} else {
+    // DOM already loaded
     Auth.init();
-});
+}
 
 // Expose to window for module scripts
 window.Auth = Auth;

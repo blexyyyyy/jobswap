@@ -36,6 +36,9 @@ const Cards = {
             explanationIcon = '👍';
         }
 
+        // Check if explanation exists or needs to be loaded
+        const hasExplanation = job.match_explanation && job.match_explanation.match_reason;
+
         card.innerHTML = `
             <div class="match-score">${score}% Match</div>
             
@@ -70,27 +73,83 @@ const Cards = {
                 </div>
             </div>
 
-            <!-- New Match Explanation Section -->
-            <div class="match-explanation ${matchClass}">
+            <!-- Match Explanation Section (Scrollable) -->
+            <div class="match-explanation ${matchClass}" id="explanation-${job.id}">
                 <div class="explanation-title">${explanationIcon} ${explanationTitle}</div>
-                <p class="explanation-text">
-                    ${job.match_explanation?.match_reason || 'Good fit based on your profile.'}
-                </p>
-                ${job.match_explanation?.missing_skills?.length ? `
-                    <div class="missing-skills">
-                        <span class="missing-label">Missing:</span>
-                        ${job.match_explanation.missing_skills.map(s =>
+                <div class="explanation-content">
+                    ${hasExplanation ? `
+                        <p class="explanation-text">${job.match_explanation.match_reason}</p>
+                        ${job.match_explanation?.missing_skills?.length ? `
+                            <div class="missing-skills">
+                                <span class="missing-label">Missing:</span>
+                                ${job.match_explanation.missing_skills.map(s =>
             `<span class="skill-tag missing">${this.escapeHtml(s)}</span>`
         ).join('')}
-                    </div>
-                ` : ''}
+                            </div>
+                        ` : ''}
+                        ${job.match_explanation?.career_tip ? `
+                            <div class="career-tip">💡 ${this.escapeHtml(job.match_explanation.career_tip)}</div>
+                        ` : ''}
+                    ` : `
+                        <div class="explanation-loading">
+                            <span class="loading-spinner"></span>
+                            <span>Analyzing match...</span>
+                        </div>
+                    `}
+                </div>
             </div>
             
             <p class="job-description">${this.escapeHtml(job.description || 'No description available.')}</p>
         `;
 
+        // Lazy-load explanation is now handled by the controller (app.js)
+        // when the card becomes active.
+
         return card;
     },
+
+    /**
+     * Fetch explanation for a job on-demand
+     */
+    async fetchExplanation(jobId, cardElement) {
+        try {
+            const response = await fetch(`${API.baseUrl}/jobs/${jobId}/explanation`, {
+                headers: API.getHeaders()
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to fetch explanation');
+            }
+
+            const explanation = await response.json();
+
+            // Update the card with the explanation
+            const explanationDiv = cardElement.querySelector(`#explanation-${jobId} .explanation-content`);
+            if (explanationDiv) {
+                explanationDiv.innerHTML = `
+                    <p class="explanation-text">${explanation.match_reason || 'Good fit based on your profile.'}</p>
+                    ${explanation.missing_skills?.length ? `
+                        <div class="missing-skills">
+                            <span class="missing-label">Missing:</span>
+                            ${explanation.missing_skills.map(s =>
+                    `<span class="skill-tag missing">${this.escapeHtml(s)}</span>`
+                ).join('')}
+                        </div>
+                    ` : ''}
+                    ${explanation.career_tip ? `
+                        <div class="career-tip">💡 ${this.escapeHtml(explanation.career_tip)}</div>
+                    ` : ''}
+                `;
+            }
+        } catch (error) {
+            console.error('Error fetching explanation:', error);
+            const explanationDiv = cardElement.querySelector(`#explanation-${jobId} .explanation-content`);
+            if (explanationDiv) {
+                explanationDiv.innerHTML = `<p class="explanation-text">Good fit based on your profile.</p>`;
+            }
+        }
+    },
+
 
     /**
      * Create skeleton loading card

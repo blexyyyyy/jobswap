@@ -327,11 +327,24 @@
     font-size: var(--font-size-sm);
     color: var(--text-secondary);
     line-height: 1.7;
-    overflow: hidden;
-    display: -webkit-box;
-    -webkit-line-clamp: 4;
-    line-clamp: 4;
-    -webkit-box-orient: vertical;
+    overflow-y: auto;
+    max-height: 150px;
+    padding-right: var(--space-xs);
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+}
+
+.job-description::-webkit-scrollbar {
+    width: 4px;
+}
+
+.job-description::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.job-description::-webkit-scrollbar-thumb {
+    background-color: rgba(255, 255, 255, 0.2);
+    border-radius: var(--radius-full);
 }
 
 /* Swipe Hint Labels */

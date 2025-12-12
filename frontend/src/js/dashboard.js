@@ -13,6 +13,8 @@ const Dashboard = {
             this.loadStats(),
             this.loadProfileStrength()
         ]);
+
+        this.setupScraperModal();
     },
 
     async loadStats() {
@@ -49,7 +51,7 @@ const Dashboard = {
 
     async loadProfileStrength() {
         try {
-            const response = await fetch(`${API.baseUrl}/auth/me`, {
+            const response = await fetch(`${API.baseUrl}/auth/profile/me`, {
                 headers: API.getHeaders()
             });
             const user = await response.json();
@@ -95,6 +97,88 @@ const Dashboard = {
         } catch (error) {
             console.error('Failed to load profile strength:', error);
         }
+    },
+
+    async setupScraperModal() {
+        const modal = document.getElementById('scraper-modal');
+        const openBtn = document.getElementById('open-scraper-btn');
+        const closeBtns = document.querySelectorAll('.close-modal, .close-modal-btn');
+        const startBtn = document.getElementById('start-scrape-btn');
+        const statusDiv = document.getElementById('scrape-status');
+
+        if (!modal || !openBtn) return;
+
+        openBtn.addEventListener('click', () => {
+            modal.style.display = 'flex';
+            statusDiv.textContent = '';
+            statusDiv.className = '';
+        });
+
+        const closeModal = () => {
+            if (startBtn.disabled) return; // Prevent closing while scraping
+            modal.style.display = 'none';
+        };
+
+        closeBtns.forEach(btn => btn.addEventListener('click', closeModal));
+
+        // Close on outside click
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) closeModal();
+        });
+
+        startBtn.addEventListener('click', async () => {
+            const keywords = document.getElementById('scrape-keywords').value;
+            const location = document.getElementById('scrape-location').value;
+            const maxJobs = parseInt(document.getElementById('scrape-max').value) || 10;
+
+            if (!keywords) {
+                statusDiv.textContent = 'Please enter keywords.';
+                statusDiv.style.color = 'red';
+                return;
+            }
+
+            // UI Loading State
+            startBtn.disabled = true;
+            startBtn.textContent = 'Scraping... (this may take a minute)';
+            statusDiv.textContent = 'Connecting to job sources...';
+            statusDiv.style.color = '#666';
+
+            try {
+                const response = await fetch(`${API.baseUrl}/jobs/scrape`, {
+                    method: 'POST',
+                    headers: API.getHeaders(),
+                    body: JSON.stringify({
+                        keywords,
+                        location,
+                        max_jobs: maxJobs
+                    })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    statusDiv.textContent = data.message;
+                    statusDiv.style.color = 'green';
+
+                    // Refresh stats
+                    await this.loadStats();
+
+                    setTimeout(() => {
+                        closeModal();
+                        startBtn.disabled = false;
+                        startBtn.textContent = 'Start Scraping';
+                    }, 2000);
+                } else {
+                    throw new Error(data.detail || 'Scraping failed');
+                }
+            } catch (error) {
+                console.error(error);
+                statusDiv.textContent = `Error: ${error.message}`;
+                statusDiv.style.color = 'red';
+                startBtn.disabled = false;
+                startBtn.textContent = 'Start Scraping';
+            }
+        });
     },
 
     animateNumber(elementId, finalValue) {

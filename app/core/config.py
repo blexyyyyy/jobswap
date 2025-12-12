@@ -5,6 +5,7 @@ load_dotenv()
 
 # App
 SECRET_KEY = os.getenv("JWT_SECRET", "super_secret_key")
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_HOURS = 24
 
@@ -12,7 +13,7 @@ ACCESS_TOKEN_EXPIRE_HOURS = 24
 JWT_SECRET = SECRET_KEY
 
 # Database (Optional if using standard path)
-DB_PATH = os.getenv("DB_PATH", "jobswipe.db")
+DB_PATH = os.getenv("DB_PATH", "database/jobmatcher.db")
 
 # SMTP
 SMTP_HOST = os.getenv("SMTP_HOST", "smtp.gmail.com")

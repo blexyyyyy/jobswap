@@ -46,7 +46,7 @@
                         autocomplete="current-password">
                 </div>
 
-                <button type="submit" class="btn-submit">
+                <button type="submit" class="btn-submit" id="login-btn">
                     <span>Login</span>
                     <span class="btn-loader"></span>
                 </button>
@@ -78,7 +78,7 @@
                         autocomplete="new-password">
                 </div>
 
-                <button type="submit" class="btn-submit">
+                <button type="submit" class="btn-submit" id="register-btn">
                     <span>Create Account</span>
                     <span class="btn-loader"></span>
                 </button>
@@ -94,7 +94,107 @@
     </div>
 
     <script type="module" src="src/js/particles.js"></script>
-    <script type="module" src="src/js/auth.js"></script>
+
+    <!-- Auth Handlers -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Tab switching
+            const tabs = document.querySelectorAll('.auth-tab');
+            const forms = document.querySelectorAll('.auth-form');
+
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    const targetTab = tab.dataset.tab;
+                    tabs.forEach(t => t.classList.remove('active'));
+                    tab.classList.add('active');
+                    forms.forEach(form => {
+                        form.classList.remove('active');
+                        if (form.id === targetTab + '-form') {
+                            form.classList.add('active');
+                        }
+                    });
+                });
+            });
+
+            // Login handler
+            const loginBtn = document.getElementById('login-btn');
+            if (loginBtn) {
+                loginBtn.addEventListener('click', async function (e) {
+                    e.preventDefault();
+                    const email = document.getElementById('login-email').value;
+                    const password = document.getElementById('login-password').value;
+                    const errorDiv = document.getElementById('login-error');
+
+                    this.disabled = true;
+                    this.querySelector('span').textContent = 'Logging in...';
+                    errorDiv.classList.remove('show');
+
+                    try {
+                        const response = await fetch('/api/auth/login', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ email, password })
+                        });
+                        const data = await response.json();
+                        if (!response.ok) throw new Error(data.detail || 'Login failed');
+
+                        localStorage.setItem('token', data.access_token);
+                        localStorage.setItem('user', JSON.stringify(data.user));
+                        this.querySelector('span').textContent = '✓ Success!';
+                        setTimeout(() => { window.location.href = 'index.html'; }, 500);
+                    } catch (error) {
+                        this.disabled = false;
+                        this.querySelector('span').textContent = 'Login';
+                        errorDiv.textContent = error.message;
+                        errorDiv.classList.add('show');
+                    }
+                });
+            }
+
+            // Register handler
+            const registerBtn = document.getElementById('register-btn');
+            if (registerBtn) {
+                registerBtn.addEventListener('click', async function (e) {
+                    e.preventDefault();
+                    const name = document.getElementById('register-name').value;
+                    const email = document.getElementById('register-email').value;
+                    const password = document.getElementById('register-password').value;
+                    const confirm = document.getElementById('register-confirm').value;
+                    const errorDiv = document.getElementById('register-error');
+
+                    if (password !== confirm) {
+                        errorDiv.textContent = 'Passwords do not match';
+                        errorDiv.classList.add('show');
+                        return;
+                    }
+
+                    this.disabled = true;
+                    this.querySelector('span').textContent = 'Creating account...';
+                    errorDiv.classList.remove('show');
+
+                    try {
+                        const response = await fetch('/api/auth/register', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ email, password, name })
+                        });
+                        const data = await response.json();
+                        if (!response.ok) throw new Error(data.detail || 'Registration failed');
+
+                        localStorage.setItem('token', data.access_token);
+                        localStorage.setItem('user', JSON.stringify(data.user));
+                        this.querySelector('span').textContent = '✓ Account Created!';
+                        setTimeout(() => { window.location.href = 'index.html'; }, 500);
+                    } catch (error) {
+                        this.disabled = false;
+                        this.querySelector('span').textContent = 'Create Account';
+                        errorDiv.textContent = error.message;
+                        errorDiv.classList.add('show');
+                    }
+                });
+            }
+        });
+    </script>
 </body>
 
 </html>

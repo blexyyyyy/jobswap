@@ -3,7 +3,8 @@
  */
 
 const API = {
-    baseUrl: '/api',
+    // Use environment variable for production, fallback to /api for development
+    baseUrl: import.meta.env.VITE_API_URL || '/api',
 
     /**
      * Get auth token from localStorage

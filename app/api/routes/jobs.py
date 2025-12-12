@@ -21,3 +21,9 @@ async def get_saved_jobs(current_user: dict = Depends(get_current_user)):
 async def get_applied_jobs(current_user: dict = Depends(get_current_user)):
     """Get user's applied jobs."""
     return {"jobs": JobService.get_applied_jobs(current_user["id"])}
+
+@router.get("/{job_id}/explanation")
+async def get_job_explanation(job_id: int, current_user: dict = Depends(get_current_user)):
+    """Generate AI explanation for a specific job on-demand."""
+    explanation = await JobService.get_explanation(job_id, current_user)
+    return explanation

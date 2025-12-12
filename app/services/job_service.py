@@ -31,8 +31,7 @@ class JobService:
 
     @staticmethod
     async def _process_jobs(all_jobs, current_user):
-        # Format jobs and calculate initial sort score
-        from matching.explanations import explanation_generator
+        """Process jobs with ML scoring only. Explanations are fetched on-demand."""
         
         user_profile = {
             "skills": current_user["skills"].split(",") if current_user["skills"] else [],
@@ -41,8 +40,6 @@ class JobService:
             "preferred_seniority": current_user["preferred_seniority"],
             "resume_text": current_user["resume_text"]
         }
-        
-        user_skills_set = set(s.strip().lower() for s in user_profile["skills"])
 
         processed_jobs = []
         for job in all_jobs:
@@ -52,71 +49,91 @@ class JobService:
             else:
                 job["skills"] = []
                 
-            # Initial Scoring (for sorting)
-            job_skills_set = set(s.lower() for s in job["skills"])
-            overlap = len(user_skills_set & job_skills_set)
+            # === ML Scoring ===
+            from ml.model import score_job
             
-            # Simple heuristic score: overlap * 10, capped at 90 base
-            score = 50 + (overlap * 10)
+            # Get probability (0.0 to 1.0)
+            prob = score_job(user_profile, job)
+            job["match_score"] = int(prob * 100)
             
-            # Title match bonus
-            if user_profile["preferred_seniority"] and user_profile["preferred_seniority"].lower() in job["title"].lower():
-                score += 10
-            
-            job["match_score"] = min(95, score)
             job["logo_emoji"] = ["🚀", "💡", "📊", "🤖", "☁️", "🌱", "🏗️", "💰"][job["id"] % 8]
+            
+            # NO explanation generated upfront - set to null
+            job["match_explanation"] = None
+            
             processed_jobs.append(job)
 
-        # Sort by heuristic score DESC
+        # Sort by ML match score DESC
         processed_jobs.sort(key=lambda x: x["match_score"], reverse=True)
         
-        jobs = processed_jobs
+        return processed_jobs
 
-        # === Parallel Explanation Generation ===
-        async def fetch_explanation(job):
-            try:
-                # Clean description
-                raw_desc = job.get("description", "") or ""
-                try:
-                    from bs4 import BeautifulSoup
-                    import re
-                    soup = BeautifulSoup(raw_desc, "html.parser")
-                    clean_desc = soup.get_text(separator=" ")
-                    clean_desc = re.sub(r'\s+', ' ', clean_desc).strip()
-                    job["description"] = clean_desc[:500] 
-                except Exception:
-                    job["description"] = raw_desc[:500]
-
-                job_summary = {
-                    "title": job["title"],
-                    "company": job["company"],
-                    "location": job["location"],
-                    "skills": job["skills"],
-                    "description": job["description"]
-                }
-                
-                # Run sync LLM call in thread pool
-                print(f"[JobService] Fetching explanation for job: {job['title']}, user_skills: {user_profile['skills']}")
-                explanation = await asyncio.to_thread(explanation_generator.generate_explanation, user_profile, job_summary)
-                print(f"[JobService] Got explanation: {explanation}")
-                job["match_explanation"] = explanation
-                if explanation.get("match_score"):
-                    job["match_score"] = explanation["match_score"]
-            except Exception:
-                # Fallback
-                common_count = len(set(job["skills"]) & set(user_profile["skills"]))
-                job["match_explanation"] = {
-                    "match_reason": f"Matches {common_count} of your skills.",
-                    "match_type": "neutral",
-                    "match_score": 50 + (common_count * 10),
-                    "missing_skills": [],
-                    "career_tip": "Review requirements."
-                }
-
-        if jobs:
-            await asyncio.gather(*[fetch_explanation(job) for job in jobs])
+    @staticmethod
+    async def get_explanation(job_id: int, user: dict):
+        """Generate explanation for a specific job on-demand."""
+        import asyncio
+        from matching.explanations import explanation_generator
+        from ml.features import extract_job_features
         
-        return jobs
+        user_profile = {
+            "skills": user["skills"].split(",") if user["skills"] else [],
+            "experience_years": user["experience_years"],
+            "preferred_location": user["preferred_location"],
+            "preferred_seniority": user["preferred_seniority"],
+            "resume_text": user["resume_text"] or "Not provided"
+        }
+        
+        # Fetch job from DB
+        with get_db_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute("SELECT * FROM jobs WHERE id = ?", (job_id,))
+            row = cursor.fetchone()
+            if not row:
+                return {"error": "Job not found"}
+            job = dict(row)
+        
+        # Parse skills
+        if job.get("skills"):
+            job["skills"] = [s.strip() for s in job["skills"].split(",")]
+        else:
+            job["skills"] = []
+        
+        # Clean description
+        raw_desc = job.get("description", "") or ""
+        try:
+            from bs4 import BeautifulSoup
+            import re
+            soup = BeautifulSoup(raw_desc, "html.parser")
+            clean_desc = soup.get_text(separator=" ")
+            clean_desc = re.sub(r'\s+', ' ', clean_desc).strip()
+            job["description"] = clean_desc[:500]
+        except Exception:
+            job["description"] = raw_desc[:500]
+        
+        # ML scoring
+        from ml.model import score_job
+        prob = score_job(user_profile, job)
+        ml_score = int(prob * 100)
+        
+        # ML features
+        ml_features = extract_job_features(user_profile, job)
+        
+        job_summary = {
+            "title": job["title"],
+            "company": job["company"],
+            "location": job["location"],
+            "skills": job["skills"],
+            "description": job["description"],
+            "ml_score": ml_score,
+            "ml_features": ml_features
+        }
+        
+        # Generate explanation
+        print(f"[JobService] On-demand explanation for job {job_id}: {job['title']}")
+        explanation = await asyncio.to_thread(explanation_generator.generate_explanation, user_profile, job_summary)
+        
+        return explanation
+
 
     @staticmethod
     def get_saved_jobs(user_id: int):

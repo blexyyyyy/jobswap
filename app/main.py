@@ -7,9 +7,10 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from datetime import datetime
 import sqlite3
+import os
 
 from app.core.config import DB_PATH
-from app.api.routes import auth, jobs, chat, swipe, scrape, profile, resume, apply
+from app.api.routes import auth, jobs, chat, swipe, scrape, profile, resume, apply, ml
 
 # Initialize FastAPI app
 app = FastAPI(
@@ -19,9 +20,11 @@ app = FastAPI(
 )
 
 # CORS middleware for frontend
+# Get allowed origins from environment variable or use wildcard for development
+allowed_origins = os.getenv("CORS_ORIGINS", "*").split(",")
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # In production, specify your frontend domain
+    allow_origins=allowed_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -36,6 +39,7 @@ app.include_router(swipe.router, prefix="/api/swipe", tags=["Swipe"])
 app.include_router(chat.router, prefix="/api/chat", tags=["Chat"])
 app.include_router(scrape.router, prefix="/api/jobs/scrape", tags=["Scrape"])
 app.include_router(apply.router, prefix="/api/apply", tags=["Apply"])
+app.include_router(ml.router, prefix="/api/ml", tags=["ML"])
 
 
 # ========== Health Check ==========
