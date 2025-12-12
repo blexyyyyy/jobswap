@@ -1,5 +1,5 @@
 import hashlib
-import jwt
+from jose import jwt, JWTError
 from datetime import datetime, timedelta
 from fastapi import HTTPException
 from app.core import config
@@ -29,5 +29,5 @@ def decode_token(token: str) -> dict:
         return payload
     except jwt.ExpiredSignatureError:
         raise HTTPException(status_code=401, detail="Token expired")
-    except jwt.InvalidTokenError:
+    except JWTError:
         raise HTTPException(status_code=401, detail="Invalid token")
