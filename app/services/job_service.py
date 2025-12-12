@@ -50,11 +50,14 @@ class JobService:
                 job["skills"] = []
                 
             # === ML Scoring ===
-            from ml.model import score_job
-            
-            # Get probability (0.0 to 1.0)
-            prob = score_job(user_profile, job)
-            job["match_score"] = int(prob * 100)
+            # === ML Scoring ===
+            try:
+                from ml.model import score_job
+                # Get probability (0.0 to 1.0)
+                prob = score_job(user_profile, job)
+                job["match_score"] = int(prob * 100)
+            except ImportError:
+                job["match_score"] = 0 # Default score if ML missing
             
             job["logo_emoji"] = ["🚀", "💡", "📊", "🤖", "☁️", "🌱", "🏗️", "💰"][job["id"] % 8]
             
@@ -111,12 +114,20 @@ class JobService:
             job["description"] = raw_desc[:500]
         
         # ML scoring
-        from ml.model import score_job
-        prob = score_job(user_profile, job)
-        ml_score = int(prob * 100)
+        # ML scoring
+        try:
+            from ml.model import score_job
+            prob = score_job(user_profile, job)
+            ml_score = int(prob * 100)
+        except ImportError:
+            ml_score = 0
         
         # ML features
-        ml_features = extract_job_features(user_profile, job)
+        try:
+            from ml.features import extract_job_features
+            ml_features = extract_job_features(user_profile, job)
+        except ImportError:
+            ml_features = {}
         
         job_summary = {
             "title": job["title"],

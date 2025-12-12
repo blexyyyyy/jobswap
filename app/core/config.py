@@ -12,8 +12,13 @@ ACCESS_TOKEN_EXPIRE_HOURS = 24
 # Backward compatibility if needed elsewhere
 JWT_SECRET = SECRET_KEY
 
-# Database (Optional if using standard path)
-DB_PATH = os.getenv("DB_PATH", "database/jobmatcher.db")
+# Database
+if os.getenv("VERCEL"):
+    # On Vercel, use /tmp for write access (ephemeral)
+    DB_PATH = "/tmp/jobswipe.db"
+else:
+    # Local development
+    DB_PATH = os.getenv("DB_PATH", "jobswipe.db")
 
 # SMTP
 SMTP_HOST = os.getenv("SMTP_HOST", "smtp.gmail.com")

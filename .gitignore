@@ -45,7 +45,7 @@ env/
 *.sqlite
 *.sqlite3
 database/*.db
-jobswipe.db
+# jobswipe.db
 
 # Logs
 *.log
@@ -105,3 +105,4 @@ curl_*.json
 *.cert
 credentials.json
 secrets.json
+.vercel

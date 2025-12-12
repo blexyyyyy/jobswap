@@ -1,7 +1,14 @@
 # app/api/routes/ml.py
 from fastapi import APIRouter, BackgroundTasks, HTTPException
-from ml.train_logistic import main as train_model
-from ml.model import clear_cache
+try:
+    from ml.train_logistic import main as train_model
+    from ml.model import clear_cache
+except ImportError:
+    # Dummy fallbacks for Vercel/missing ML libs
+    def train_model():
+        raise HTTPException(status_code=501, detail="ML features not available (dependencies missing)")
+    def clear_cache():
+        pass
 import logging
 
 router = APIRouter()
