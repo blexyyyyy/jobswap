@@ -158,6 +158,8 @@ const Profile = {
             }
 
             const data = await response.json();
+            console.log('Resume upload response:', data);
+            console.log('Parsed data:', data.parsed_data);
             this.showToast('Resume parsed successfully!', 'success');
             this.updateFormFromResume(data.parsed_data);
 
@@ -171,16 +173,29 @@ const Profile = {
     },
 
     updateFormFromResume(data) {
-        if (data.name) document.getElementById('name').value = data.name;
-        if (data.phone) document.getElementById('phone').value = data.phone;
-        if (data.experience_years) document.getElementById('experience').value = data.experience_years;
-        if (data.preferred_location) document.getElementById('location').value = data.preferred_location;
-        if (data.preferred_seniority) document.getElementById('seniority').value = data.preferred_seniority;
-
-        // Update skills
-        if (data.skills && Array.isArray(data.skills)) {
-            data.skills.forEach(skill => this.addSkill(skill));
+        console.log('updateFormFromResume called with:', data);
+        if (!data || Object.keys(data).length === 0) {
+            console.warn('No parsed data to populate!');
+            return;
         }
+
+        // Use undefined checks instead of truthy to handle 0 and empty strings
+        if (data.name !== undefined) document.getElementById('name').value = data.name;
+        if (data.email !== undefined) document.getElementById('email').value = data.email;
+        if (data.phone !== undefined) document.getElementById('phone').value = data.phone;
+        if (data.experience_years !== undefined) document.getElementById('experience').value = data.experience_years;
+        if (data.preferred_location !== undefined) document.getElementById('location').value = data.preferred_location;
+        if (data.preferred_seniority !== undefined) document.getElementById('seniority').value = data.preferred_seniority;
+
+        // Handle skills as array or comma-separated string
+        if (data.skills) {
+            const skillsList = typeof data.skills === 'string'
+                ? data.skills.split(',').map(s => s.trim()).filter(s => s)
+                : Array.isArray(data.skills) ? data.skills : [];
+            skillsList.forEach(skill => this.addSkill(skill));
+        }
+
+        console.log('Form updated successfully');
     },
 
     addSkill(skill) {

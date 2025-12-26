@@ -38,6 +38,9 @@ class CandidateProfile(BaseModel):
     skills: List[str] = []
     experience: str = ""
     education: str = ""
+    raw_text: str = ""
+    location: str = ""
+
 
 
 class JobPosting(BaseModel):

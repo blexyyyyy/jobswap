@@ -112,19 +112,31 @@ const Cards = {
      * Fetch explanation for a job on-demand
      */
     async fetchExplanation(jobId, cardElement) {
+        console.log(`[DEBUG] Fetching explanation for job ${jobId}`);
+        console.log(`[DEBUG] API URL: ${API.baseUrl}/jobs/${jobId}/explanation`);
+        console.log('[DEBUG] Auth headers:', API.getHeaders());
+
         try {
             const response = await fetch(`${API.baseUrl}/jobs/${jobId}/explanation`, {
                 headers: API.getHeaders()
             });
 
+            console.log(`[DEBUG] Response status: ${response.status}`);
+            console.log(`[DEBUG] Response ok: ${response.ok}`);
+
             if (!response.ok) {
-                throw new Error('Failed to fetch explanation');
+                const errorText = await response.text();
+                console.error(`[DEBUG] Error response: ${errorText}`);
+                throw new Error(`Failed to fetch explanation: ${response.status} ${errorText}`);
             }
 
             const explanation = await response.json();
+            console.log('[DEBUG] Received explanation:', explanation);
 
             // Update the card with the explanation
             const explanationDiv = cardElement.querySelector(`#explanation-${jobId} .explanation-content`);
+            console.log('[DEBUG] Explanation div found:', !!explanationDiv);
+
             if (explanationDiv) {
                 explanationDiv.innerHTML = `
                     <p class="explanation-text">${explanation.match_reason || 'Good fit based on your profile.'}</p>
@@ -140,9 +152,11 @@ const Cards = {
                         <div class="career-tip">💡 ${this.escapeHtml(explanation.career_tip)}</div>
                     ` : ''}
                 `;
+                console.log('[DEBUG] Successfully updated explanation div');
             }
         } catch (error) {
-            console.error('Error fetching explanation:', error);
+            console.error('[ERROR] Explanation fetch failed:', error);
+            console.error('[ERROR] Error details:', error.message, error.stack);
             const explanationDiv = cardElement.querySelector(`#explanation-${jobId} .explanation-content`);
             if (explanationDiv) {
                 explanationDiv.innerHTML = `<p class="explanation-text">Good fit based on your profile.</p>`;

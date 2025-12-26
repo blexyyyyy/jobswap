@@ -3,7 +3,8 @@
  */
 
 const Auth = {
-    API_URL: '/api',
+    // Direct backend URL to bypass Vite proxy issues
+    API_URL: 'http://localhost:8000/api',
 
     /**
      * Initialize auth page

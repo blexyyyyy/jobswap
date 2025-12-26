@@ -3,8 +3,8 @@
  */
 
 const API = {
-    // Use environment variable for production, fallback to /api for development
-    baseUrl: import.meta.env.VITE_API_URL || '/api',
+    // Direct backend URL to bypass Vite proxy issues
+    baseUrl: import.meta.env.VITE_API_URL || 'http://localhost:8000/api',
 
     /**
      * Get auth token from localStorage

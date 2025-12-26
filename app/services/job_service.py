@@ -143,6 +143,10 @@ class JobService:
         print(f"[JobService] On-demand explanation for job {job_id}: {job['title']}")
         explanation = await asyncio.to_thread(explanation_generator.generate_explanation, user_profile, job_summary)
         
+        if not explanation:
+            # This should technically be handled by ExplanationGenerator, but check again
+            return {"match_reason": "Analysis unavailable at the moment.", "match_type": "medium"}
+            
         return explanation
 
 

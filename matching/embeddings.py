@@ -9,19 +9,15 @@ from core.llm_client import CandidateProfile, JobPosting, generate_embedding
 # ---------------------------------------------------------
 
 def candidate_to_embedding_text(candidate: CandidateProfile) -> str:
-    """
-    Convert a structured CandidateProfile into a clean, consistent
-    text block that can be embedded. We only include fields that
-    contribute to matching.
-    """
     fields = [
         f"Summary: {candidate.summary}",
         f"Skills: {', '.join(candidate.skills)}",
         f"Experience: {candidate.experience}",
-        f"Education: {candidate.education}"
+        f"Education: {candidate.education}",
+        f"Location: {candidate.location or ''}",
     ]
-
     return "\n".join(fields).strip()
+
 
 
 # ---------------------------------------------------------
@@ -62,3 +58,5 @@ def embed_job(job: JobPosting) -> List[float]:
     """
     text = job_to_embedding_text(job)
     return generate_embedding(text)
+
+

@@ -42,25 +42,37 @@ class AuthService:
 
     @staticmethod
     def login_user(user: UserLogin):
-        with get_db_connection() as conn:
-            cursor = conn.cursor()
-            cursor.execute("SELECT * FROM users WHERE email = ?", (user.email,))
-            db_user = cursor.fetchone()
-        
-        if not db_user:
-            raise HTTPException(status_code=401, detail="Invalid email or password")
-        
-        if not verify_password(user.password, db_user["password_hash"]):
-            raise HTTPException(status_code=401, detail="Invalid email or password")
-        
-        # Generate token
-        token = create_access_token(db_user["id"], db_user["email"])
-        
-        return {
-            "access_token": token,
-            "user": {
-                "id": db_user["id"],
-                "email": db_user["email"],
-                "name": db_user["name"]
+        try:
+            with get_db_connection() as conn:
+                cursor = conn.cursor()
+                cursor.execute("SELECT * FROM users WHERE email = ?", (user.email,))
+                db_user = cursor.fetchone()
+            
+            if not db_user:
+                raise HTTPException(status_code=401, detail="Invalid email or password")
+            
+            if not verify_password(user.password, db_user["password_hash"]):
+                raise HTTPException(status_code=401, detail="Invalid email or password")
+            
+            # Generate token
+            token = create_access_token(db_user["id"], db_user["email"])
+            
+            return {
+                "access_token": token,
+                "user": {
+                    "id": db_user["id"],
+                    "email": db_user["email"],
+                    "name": db_user["name"]
+                }
             }
-        }
+        except HTTPException as he:
+            raise he
+        except Exception as e:
+            # Log error details
+            error_msg = f"Login Error: {str(e)}"
+            print(error_msg)
+            with open("auth_error.log", "a") as f:
+                f.write(f"\n[LOGIN] {error_msg}\n")
+                import traceback
+                traceback.print_exc(file=f)
+            raise HTTPException(status_code=500, detail="Internal Server Error during login")
