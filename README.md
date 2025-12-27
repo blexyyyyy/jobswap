@@ -1,156 +1,127 @@
-# 💼 JobSwipe - AI-Powered Career Matcher
+# JobSwipe: An AI-Powered Career Matcher
 
-**JobSwipe** is a premium, AI-driven career platform that modernizes the job search experience. Built with a "Tinder-like" swipe interface, it uses advanced Machine Learning and the Gemini LLM to provide hyper-personalized job matches, real-time explanation insights, and automated resume parsing.
+JobSwipe is a modular, production-oriented career platform designed to modernize the job search experience through high-fidelity automation and machine learning. By integrating a swipe-based interface with advanced natural language processing and heuristic scoring, it provides a deterministic and observable pipeline for job discovery and application management.
 
----
+> This project prioritizes systems design and architectural clarity over simple wrapper logic, demonstrating a robust integration of machine learning and large language models into a functional web application.
 
-## 🚀 Key Features
+## Key Capabilities
 
-### 🧠 AI & Logic
-*   **Gemini AI Explanations**: Every job card answers "Why this matches you" with a personalized analysis of your skills vs. the job description.
-    *   🔥 **Excellent Match**: Highlights strong skill overlaps.
-    *   ⚠️ **Challenging Match**: Identifies missing critical skills.
-    *   💡 **Potential Match**: Suggests transferable skills.
-*   **Smart Resume Parsing**: Upload a PDF or DOCX resume, and our LLM-powered parser automatically extracts technical skills, experience, and contact info to build your profile instantly.
-*   **Vector Matching (Ready)**: Architecture designed for semantic similarity matching (ChromaDB integrated core).
+### Multi-Source Job Aggregation
+The system features a unified scraping architecture that collects and normalizes data from multiple platforms, including Remotive, RemoteOK, and Jobicy, ensuring a consistent schema across disparate data sources.
 
-### 🎨 Premium Frontend
-*   **Swipe Interface**: Fluid, gesture-based card stack (Left=Skip, Right=Apply, Up=Save).
-*   **Glassmorphism UI**: High-end dark mode aesthetics with blurred backdrops, glowing borders, and smooth 60fps animations.
-*   **Interactive Dashboard**: Visual analytics of your application history, profile usage, and skill gap analysis.
-*   **Real-time Explanations**: Dynamic UI that changes color and content based on AI match verdict.
+### Heuristic and Logistic Match Scoring
+Matches are calculated using a hybrid approach:
+- **Logistic Regression**: Predicts match probability based on historical user behavior and profile features.
+- **Skill Overlap Analysis**: Quantitative assessment of candidate technical stacks against job requirements.
 
-### ⚙️ Robust Backend
-*   **FastAPI**: High-performance async API handling job feeds, swipes, and auth.
-*   **JWT Authentication**: Secure, stateful session management with strict loop-prevention logic.
-*   **SQLite Database**: Lightweight, relational storage for users, jobs, swipes, and chat history.
+### Generative AI Insights
+Utilizes the Gemini Pro and Ollama-based models to generate high-fidelity explanations for match results. This addresses the "black box" problem of automated matching by providing candidates with actionable career feedback.
 
----
+### Automated Resume Intelligence
+A structured parsing engine extracts technical competencies, professional experience, and contact metadata from unstructured PDF and DOCX documents to automate profile generation.
 
-## 🛠️ Tech Stack
+### Event-Driven Swipe Interface
+A high-performance frontend implementation utilizing card-stacking logic for efficient candidate-job interactions, with persistence layers for saves, skips, and applications.
 
-*   **Backend**: Python 3.10+, FastAPI, SQLite, Pydantic, SQLAlchemy/Raw SQL
-*   **Frontend**: Vanilla JS (ES6+), CSS3 (Variables, Flexbox/Grid), HTML5
-*   **AI/ML**: Google Gemini (Pro), ChromaDB (Vector Store), PyPDF/Docx2txt
-*   **DevOps**: Uvicorn, Dotenv
+## High-Level Architecture
 
----
-
-## 📂 Project Structure
-
-```text
-jobswipe/
-├── app/
-│   ├── main.py              # FastAPI application entry point
-│   ├── api/                 # API Routes & Dependencies
-│   │   ├── routes/
-│   │   │   ├── auth.py      # Login, Register, Profile, Resume
-│   │   │   ├── jobs.py      # Feed, Saved, Applied
-│   │   │   ├── swipe.py     # Swipe actions
-│   │   │   ├── chat.py      # Messaging
-│   │   │   ├── scrape.py    # Job Scraping trigger
-│   │   │   └── apply.py     # Auto-Apply queue
-│   │   └── deps.py          # Dependencies (get_current_user)
-│   ├── core/                # Core Configuration
-│   │   ├── config.py        # Settings (DB Path, Secrets, SMTP)
-│   │   └── security.py      # Auth Logic (JWT, Hashing)
-│   ├── services/            # Business Logic Layer
-│   │   ├── auth_service.py  # User authentication
-│   │   ├── job_service.py   # Job feed & scraping
-│   │   ├── swipe_service.py # Swipe handling
-│   │   ├── user_service.py  # Profile & resume processing
-│   │   └── apply_service.py # Auto-apply email service
-│   └── schemas/             # Pydantic Data Models
-│       ├── user.py, job.py, chat.py, apply.py
-├── database/
-│   ├── connection.py        # Unified DB connection manager
-│   ├── db_manager.py        # Low-level DB utilities
-│   └── schema.sql           # Database schema definitions
-├── frontend/                # Vite-Powered Web Interface
-│   ├── vite.config.js       # Vite configuration with API proxy
-│   ├── package.json         # Node dependencies
-│   ├── src/
-│   │   ├── css/             # Modular stylesheets
-│   │   │   ├── variables.css, base.css, components.css
-│   │   │   ├── animations.css, explanation.css, dashboard.css
-│   │   └── js/              # ES Modules
-│   │       ├── app.js, api.js, auth.js, cards.js
-│   │       ├── swipe.js, profile.js, dashboard.js
-│   │       ├── particles.js, applied.js
-│   ├── index.html, login.html, profile.html
-│   ├── applied.html, dashboard.html, chat.html
-├── matching/
-│   ├── explanations.py      # Gemini Prompt Engineering for Insights
-│   ├── scorer.py            # Heuristic match scoring
-│   └── embeddings.py        # Vector embedding utilities
-├── parsers/
-│   └── resume_parser.py     # LLM-based Resume Extractor
-├── scrapers/
-│   └── unified_scraper.py   # Multi-source job aggregator
-│   │   └── Sources: Remotive, RemoteOK, Arbeitnow, WeWorkRemotely, Jobicy
-├── ingestion/               # Data Pipeline
-│   ├── cleaners/            # Job normalization
-│   └── pipeline/            # Ingestion workflows
-├── tests/                   # Verification Scripts
-│   ├── verify_scraping.py, verify_auto_apply.py, check_db.py
-├── utils/
-│   ├── file_handler.py      # PDF/DOCX Text Extraction
-│   └── email_client.py      # SMTP Email Sender
-├── scripts/                 # Database migration scripts
-├── core/
-│   └── llm_client.py        # Gemini API wrapper
-├── requirements.txt         # Python dependencies
-└── README.md                # Project Documentation
-
-# Not tracked (local only):
-# .env                       # API keys & secrets
-# .venv/                     # Python virtual environment
-# *.db                       # SQLite databases
-# node_modules/              # Node dependencies
-# chroma_db/                 # Vector store data
+```mermaid
+graph TD
+    A[External Job Sources] --> B[Unified Scraper]
+    B --> C[Data Normalization Pipeline]
+    C --> D[(SQLite Database)]
+    D --> E[FastAPI Backend]
+    E --> F[ML Matching Engine]
+    E --> G[LLM Insight Generator]
+    F --> H[API Results]
+    G --> H
+    H --> I[Vite Frontend]
+    I --> J[User Interactions]
+    J --> D
 ```
 
----
+## Core Design Principles
 
-## ⚡ Setup & Installation
+- **SOLID and Clean Architecture**: Clear separation between high-level business rules (Services) and low-level implementations (Database/Scrapers).
+- **Dependency Inversion**: Utilization of abstractions for LLM providers (Gemini, Ollama, Groq) and data sources.
+- **Deterministic Match Logic**: Ensuring that AI insights align with underlying ML scores.
+- **Observability**: Comprehensive logging and test-driven verification for every stage of the ingestion and matching pipeline.
 
-1.  **Clone the repository**
-2.  **Create virtual environment**:
-    ```bash
-    python -m venv .venv
-    .venv\Scripts\activate  # Windows
-    ```
-3.  **Install dependencies**:
-    ```bash
-    pip install -r requirements.txt
-    ```
-4.  **Set up Environment**:
-    Create a `.env` file in the root:
-    ```env
-    GEMINI_API_KEY=your_api_key_here
-    JWT_SECRET=your_secret_key
-    ```
-5.  **Run the Server**:
-    ```bash
-    python -m uvicorn app.main:app --reload
-    ```
-6.  **Access the App**:
-    Open `http://localhost:8000/frontend/login.html` (or serve frontend via a web server).
+## System Components
 
----
+### Backend Infrastructure
+- **FastAPI**: Asynchronous API layer for low-latency job delivery and profile management.
+- **Service Layer Pattern**: Business logic isolated in dedicated service classes for high testability.
+- **JWT Security**: Secure session management with strict authentication boundaries.
 
-## 🧪 Usage Guide
+### Matching and AI Layer
+- **ML Scorer**: Feature engineering and logistic regression models for predicting user preferences.
+- **Explanation Generator**: Strategic prompt engineering for contextual match analysis.
+- **Vector Base (Ready)**: Architecture designed to support semantic search via ChromaDB integration.
 
-1.  **Sign Up**: Create an account on the glossy login page.
-2.  **Build Profile**: Go to the **Profile** tab. Drag & drop your PDF resume. Watch the AI auto-fill your skills and experience.
-3.  **Swipe**: Go to the **Job Feed**.
-    *   Read the **"✨ Gemini AI Analysis"** card to see why a job fits.
-    *   **Right** = Apply (Confetti!)
-    *   **Left** = Skip
-    *   **Up** = Save
-4.  **Analyze**: Check the **Dashboard** to see your application stats and profile strength.
+### Frontend
+- **Vanilla JavaScript (ES6+)**: High-performance, low-dependency code structure.
+- **CSS3 Design System**: Glassmorphism aesthetics with modular stylesheets for consistent UI/UX.
+- **Responsive Animations**: Optimized 60fps gesture-based interactions.
 
----
+## End-to-End Workflow
 
-## 🤝 Contribution
-This project showcases the integration of Generative AI into practical workflows. Feel free to extend the `scrapers/` or improve `matching/explanations.py` prompt logic.
+1.  **Ingestion**: Scrapers fetch raw job data; the pipeline cleans and persists it to the database.
+2.  **Profiling**: Users upload resumes; the parser extracts data to build a structured profile.
+3.  **Discovery**: The API generates a job feed; the ML engine scores each job against the user profile.
+4.  **Analysis**: On-demand AI insights provide the "Why" behind the match score.
+5.  **Action**: User swipes are recorded; applications are tracked in the dashboard.
+
+## Installation
+
+### Prerequisites
+- Python 3.10 or higher
+- Node.js (for frontend build)
+- API Keys: Gemini Pro (optional but recommended for insights)
+
+### Environment Setup
+1. Clone the repository and navigate to the root directory.
+2. Create and activate a virtual environment:
+   ```bash
+   python -m venv .venv
+   .venv\Scripts\activate  # Windows
+   source .venv/bin/activate  # Unix
+   ```
+3. Install dependencies:
+   ```bash
+   pip install -r requirements.txt
+   ```
+4. Configure environment variables in a `.env` file:
+   ```env
+   GEMINI_API_KEY=your_key_here
+   JWT_SECRET=your_secret_key
+   ```
+
+### Execution
+1. Initialize the database (if required):
+   ```bash
+   python scripts/init_db.py
+   ```
+2. Start the FastAPI server:
+   ```bash
+   python -m uvicorn app.main:app --reload
+   ```
+3. Access the application via `http://localhost:8000/frontend/index.html`.
+
+## Testing and Verification
+
+The system includes a suite of verification scripts to ensure component integrity:
+- **Scraper Verification**: `pytest tests/verify_scraping.py`
+- **ML Logic Check**: `python scripts/verify_ml.py`
+- **E2E Match Test**: `python scripts/debug_explanation.py`
+
+## Project Status
+
+- **Core Engine**: Stable
+- **Matching Pipeline**: Fully Integrated
+- **Auth System**: Production Ready
+- **Frontend**: Functional (Vite build ready)
+- **Planned**: Persistent vector search refinement and automated application delivery.
+
+## License
+MIT

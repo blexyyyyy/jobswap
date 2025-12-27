@@ -126,11 +126,13 @@ const Auth = {
                 body: JSON.stringify({ email, password })
             });
 
-            const data = await response.json();
-
+            const text = await response.text();
+            let data = null;
+            try { data = text ? JSON.parse(text) : null; } catch (e) { data = null; }
             if (!response.ok) {
-                throw new Error(data.detail || 'Login failed');
+                throw new Error((data && (data.detail || data.error)) || response.statusText || 'Login failed');
             }
+            if (!data || !data.access_token) throw new Error('Invalid login response from server');
 
             // Save token and user
             localStorage.setItem('token', data.access_token);
@@ -184,11 +186,13 @@ const Auth = {
                 body: JSON.stringify({ email, password, name })
             });
 
-            const data = await response.json();
-
+            const text = await response.text();
+            let data = null;
+            try { data = text ? JSON.parse(text) : null; } catch (e) { data = null; }
             if (!response.ok) {
-                throw new Error(data.detail || 'Registration failed');
+                throw new Error((data && (data.detail || data.error)) || response.statusText || 'Registration failed');
             }
+            if (!data || !data.access_token) throw new Error('Invalid registration response from server');
 
             // Save token and user
             localStorage.setItem('token', data.access_token);

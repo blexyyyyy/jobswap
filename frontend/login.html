@@ -135,8 +135,11 @@
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify({ email, password })
                         });
-                        const data = await response.json();
-                        if (!response.ok) throw new Error(data.detail || 'Login failed');
+                        const text = await response.text();
+                        let data = null;
+                        try { data = text ? JSON.parse(text) : null; } catch (e) { data = null; }
+                        if (!response.ok) throw new Error((data && (data.detail || data.error)) || response.statusText || 'Login failed');
+                        if (!data || !data.access_token) throw new Error('Invalid login response from server');
 
                         localStorage.setItem('token', data.access_token);
                         localStorage.setItem('user', JSON.stringify(data.user));
@@ -178,8 +181,11 @@
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify({ email, password, name })
                         });
-                        const data = await response.json();
-                        if (!response.ok) throw new Error(data.detail || 'Registration failed');
+                        const text = await response.text();
+                        let data = null;
+                        try { data = text ? JSON.parse(text) : null; } catch (e) { data = null; }
+                        if (!response.ok) throw new Error((data && (data.detail || data.error)) || response.statusText || 'Registration failed');
+                        if (!data || !data.access_token) throw new Error('Invalid registration response from server');
 
                         localStorage.setItem('token', data.access_token);
                         localStorage.setItem('user', JSON.stringify(data.user));
