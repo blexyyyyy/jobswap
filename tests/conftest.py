@@ -4,9 +4,13 @@ import pytest
 from app.core.logging import logger
 
 # Fix for Windows Asyncio Loop
-if sys.platform.startswith("win"):
-    asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
+@pytest.fixture(scope="session", autouse=True)
+def fix_windows_event_loop():
+    if sys.platform.startswith("win"):
+        asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
 
+# Note: pytest-asyncio usually provides its own event_loop fixture, 
+# but if we need a custom one or scope override:
 @pytest.fixture(scope="session")
 def event_loop():
     """

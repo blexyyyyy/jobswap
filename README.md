@@ -140,6 +140,9 @@ The system includes a suite of verification scripts to ensure component integrit
 - **Unit & Integration Tests**: `pytest tests/`
 - **Scraper Verification**: `pytest tests/test_scrapers.py`
 
+### Testing Notes (Windows)
+When running the full test suite on Windows, you may encounter `asyncio` event loop errors (e.g., `RuntimeError: Event loop is closed`) due to known `pytest-asyncio` + `ProactorEventLoop` limitations. This **does not** affect CI (Linux) or production behavior. The `conftest.py` includes a workaround, but isolation issues may persist locally.
+
 ## Project Status
 
 - **Core Engine**: Stable
