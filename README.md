@@ -1,5 +1,9 @@
 # JobSwap: An AI-Powered Career Matcher
 
+[![JobSwap CI](https://github.com/blexyyyyy/jobswap/actions/workflows/test.yml/badge.svg)](https://github.com/blexyyyyy/jobswap/actions/workflows/test.yml)
+[![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://www.python.org/downloads/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 JobSwap is a modular, production-oriented career platform designed to modernize the job search experience through high-fidelity automation and machine learning. By integrating a swipe-based interface with advanced natural language processing and heuristic scoring, it provides a deterministic and observable pipeline for job discovery and application management.
 
 > This project prioritizes systems design and architectural clarity over simple wrapper logic, demonstrating a robust integration of machine learning and large language models into a functional web application.
