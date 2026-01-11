@@ -98,7 +98,7 @@ graph TD
 4.  **Analysis**: On-demand AI insights provide the "Why" behind the match score.
 5.  **Action**: User swipes are recorded; applications are tracked in the dashboard.
 
-## Installation
+## Detailed Setup & Development
 
 ### Prerequisites
 - Python 3.10 or higher
@@ -124,15 +124,11 @@ graph TD
    ```
 
 ### Execution
-1. Initialize the database (if required):
-   ```bash
-   python scripts/init_db.py
-   ```
-2. Start the FastAPI server:
+1. Start the FastAPI server (Database initializes automatically):
    ```bash
    python -m uvicorn app.main:app --reload
    ```
-3. Access the application via `http://localhost:8000/frontend/index.html`.
+2. Access the application via `http://localhost:8000/frontend/index.html`.
 
 ## Testing and Verification
 
