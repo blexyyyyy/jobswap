@@ -1,5 +1,6 @@
 from app.schemas.user import UserProfile
 from database.connection import get_db_connection
+from app.core.logging import logger
 
 class UserService:
     @staticmethod
@@ -70,7 +71,7 @@ class UserService:
         try:
             resume_path = save_resume_file(file, user_id=user_id)
         except Exception as e:
-             print(f"Resume Save Error: {e}")
+             logger.error(f"Resume Save Error: {e}")
              resume_path = None
         
         # Parse with LLM
@@ -78,7 +79,7 @@ class UserService:
             parsed_data = resume_parser.parse_resume(text)
         except Exception as e:
             # Continue even if parsing fails, we have the file
-            print(f"Parse Error: {e}")
+            logger.error(f"Parse Error: {e}")
             parsed_data = {}
             
         # Update user profile

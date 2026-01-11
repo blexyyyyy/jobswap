@@ -1,7 +1,7 @@
 {
-  "name": "jobswipe-frontend",
+  "name": "jobswap-frontend",
   "version": "1.0.0",
-  "description": "Frontend for JobSwipe",
+  "description": "Frontend for JobSwap",
   "scripts": {
     "dev": "vite",
     "build": "vite build",

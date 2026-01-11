@@ -1,17 +1,7 @@
-from dataclasses import dataclass
-from typing import List, Optional
+from app.core.interfaces import JobResult
 
-
-@dataclass
-class RawJob:
-    title: str
-    company: str
-    location: str
-    skills: List[str]
-    description: str
-    url: str
-    raw_text: str
-    source: str
+# Alias for backward compatibility, but JobResult is the standard
+RawJob = JobResult
 
 
 def clean_text(value: Optional[str]) -> str:

@@ -1,6 +1,7 @@
-from database.connection import get_db_connection
 from app.schemas.job import JobScrapeRequest
 import asyncio
+from app.core.logging import logger
+from database.db_manager import get_db_connection
 
 class JobService:
     @staticmethod
@@ -27,6 +28,7 @@ class JobService:
 
         except Exception as e:
             # Log error
+            logger.error(f"Error fetching job feed: {e}")
             raise e
 
     @staticmethod
@@ -52,9 +54,10 @@ class JobService:
             # === ML Scoring ===
             # === ML Scoring ===
             try:
-                from ml.model import score_job
+                from ml.scorer import LogisticMatchScorer
+                scorer = LogisticMatchScorer()
                 # Get probability (0.0 to 1.0)
-                prob = score_job(user_profile, job)
+                prob = scorer.score(user_profile, job)
                 job["match_score"] = int(prob * 100)
             except ImportError:
                 job["match_score"] = 0 # Default score if ML missing
@@ -116,8 +119,9 @@ class JobService:
         # ML scoring
         # ML scoring
         try:
-            from ml.model import score_job
-            prob = score_job(user_profile, job)
+            from ml.scorer import LogisticMatchScorer
+            scorer = LogisticMatchScorer()
+            prob = scorer.score(user_profile, job)
             ml_score = int(prob * 100)
         except ImportError:
             ml_score = 0
@@ -140,7 +144,7 @@ class JobService:
         }
         
         # Generate explanation
-        print(f"[JobService] On-demand explanation for job {job_id}: {job['title']}")
+        logger.info(f"[JobService] On-demand explanation for job {job_id}: {job['title']}")
         explanation = await asyncio.to_thread(explanation_generator.generate_explanation, user_profile, job_summary)
         
         if not explanation:

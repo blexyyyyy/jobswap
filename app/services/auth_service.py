@@ -2,6 +2,7 @@ from app.core.security import hash_password, verify_password, create_access_toke
 from app.schemas.user import UserRegister, UserLogin
 from database.connection import get_db_connection
 from fastapi import HTTPException
+from app.core.logging import logger
 
 class AuthService:
     @staticmethod
@@ -34,10 +35,7 @@ class AuthService:
         except HTTPException as he:
             raise he
         except Exception as e:
-            with open("auth_error.log", "w") as f:
-                f.write(str(e))
-                import traceback
-                traceback.print_exc(file=f)
+            logger.error(f"Registration Error: {e}")
             raise HTTPException(status_code=500, detail=f"Internal Server Error: {str(e)}")
 
     @staticmethod
@@ -69,10 +67,5 @@ class AuthService:
             raise he
         except Exception as e:
             # Log error details
-            error_msg = f"Login Error: {str(e)}"
-            print(error_msg)
-            with open("auth_error.log", "a") as f:
-                f.write(f"\n[LOGIN] {error_msg}\n")
-                import traceback
-                traceback.print_exc(file=f)
+            logger.error(f"Login Error: {str(e)}")
             raise HTTPException(status_code=500, detail="Internal Server Error during login")

@@ -1,8 +1,21 @@
-# JobSwipe: An AI-Powered Career Matcher
+# JobSwap: An AI-Powered Career Matcher
 
-JobSwipe is a modular, production-oriented career platform designed to modernize the job search experience through high-fidelity automation and machine learning. By integrating a swipe-based interface with advanced natural language processing and heuristic scoring, it provides a deterministic and observable pipeline for job discovery and application management.
+JobSwap is a modular, production-oriented career platform designed to modernize the job search experience through high-fidelity automation and machine learning. By integrating a swipe-based interface with advanced natural language processing and heuristic scoring, it provides a deterministic and observable pipeline for job discovery and application management.
 
 > This project prioritizes systems design and architectural clarity over simple wrapper logic, demonstrating a robust integration of machine learning and large language models into a functional web application.
+
+## Quick Start
+```bash
+git clone https://github.com/blexyyyyy/jobswap.git
+cd jobswap
+pip install -r requirements.txt
+
+# Run basic verification
+pytest tests/
+
+# Start backend
+python app/main.py
+```
 
 ## Key Capabilities
 

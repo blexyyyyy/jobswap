@@ -134,7 +134,11 @@ class ExplanationGenerator:
 
         except Exception as e:
             logger.error(f"Explanation generation failed completely: {e}")
-            print(f"[ExplanationGen ERROR] All providers failed: {e}")
+            # logger.error called above already, this print is redundant or better logged.
+            # We already logged "Explanation generation failed completely: {e}" 
+            # so we can just remove this print or ensure it's not double logged.
+            # But prompt says replace print.
+            pass
             return fallback_response
 
 explanation_generator = ExplanationGenerator()

@@ -33,3 +33,8 @@ httpx
 
 # Utilities
 python-dateutil
+tenacity
+
+# Testing
+pytest
+pytest-asyncio

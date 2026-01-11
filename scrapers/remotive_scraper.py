@@ -4,6 +4,8 @@ import requests
 from scrapers.base import RawJob, clean_text
 
 
+from app.core.logging import logger
+
 API_URL = "https://remotive.com/api/remote-jobs"
 
 
@@ -13,7 +15,7 @@ def fetch_remotive(query: str, max_jobs: int = 20) -> List[RawJob]:
         resp.raise_for_status()
         data = resp.json()
     except Exception as e:
-        print(f"Error fetching Remotive: {e}")
+        logger.error(f"Error fetching Remotive: {e}")
         return []
 
     jobs_raw = data.get("jobs", [])

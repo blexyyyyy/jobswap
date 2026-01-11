@@ -5,7 +5,10 @@ import os
 
 def run_services():
     """
-    Runs both the FastAPI backend and the Vite frontend concurrently.
+    [DEV ONLY] Runs both the FastAPI backend and the Vite frontend concurrently.
+    For production, run backend and frontend separately.
+    Backend: uvicorn app.main:app
+    Frontend: nginx/serve dist
     """
     processes = []
     

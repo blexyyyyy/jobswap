@@ -1,5 +1,5 @@
 """
-FastAPI Backend for JobSwipe
+FastAPI Backend for JobSwap
 Handles user authentication and job matching API
 """
 
@@ -12,8 +12,8 @@ import os
 
 
 from app.core.config import DB_PATH
-from app.core.config import DB_PATH
 from app.api.routes import auth, jobs, chat, swipe, scrape, profile, resume, apply, ml
+from app.core.logging import logger
 from contextlib import asynccontextmanager
 
 @asynccontextmanager
@@ -26,7 +26,7 @@ async def lifespan(app: FastAPI):
 
 # Initialize FastAPI app
 app = FastAPI(
-    title="JobSwipe API",
+    title="JobSwap API",
     description="AI-powered job matching API",
     version="1.0.0",
     lifespan=lifespan
@@ -39,7 +39,7 @@ from fastapi.responses import JSONResponse
 async def global_exception_handler(request: Request, exc: Exception):
     import traceback
     error_detail = "".join(traceback.format_exception(None, exc, exc.__traceback__))
-    print(f"Global Error: {error_detail}")
+    logger.error(f"Global Error: {error_detail}")
     return JSONResponse(
         status_code=500,
         content={"detail": "Internal Server Error", "error": str(exc), "trace": error_detail}
@@ -127,12 +127,12 @@ def init_database():
                 # Source is in the project root
                 src = "jobswipe.db"
                 if os.path.exists(src):
-                    print(f"Copying {src} to {DB_PATH} for Vercel execution...")
+                    logger.info(f"Copying {src} to {DB_PATH} for Vercel execution...")
                     shutil.copy2(src, DB_PATH)
                 else:
-                    print(f"Warning: Source database {src} not found!")
+                    logger.warning(f"Warning: Source database {src} not found!")
             except Exception as e:
-                print(f"Error copying database: {e}")
+                logger.error(f"Error copying database: {e}")
     # Local development init
     conn = sqlite3.connect(DB_PATH)
     try:
@@ -141,7 +141,7 @@ def init_database():
                 conn.executescript(f.read())
             conn.commit()
     except Exception as e:
-        print(f"Database init error: {e}")
+        logger.error(f"Database init error: {e}")
     finally:
         conn.close()
 

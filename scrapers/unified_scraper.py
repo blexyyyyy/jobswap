@@ -5,11 +5,16 @@ from typing import List, Dict, Any, Optional
 import time
 import random
 
+from app.core.logging import logger
+
+from app.core.resilience import retry_external_api
+
 # Unified Scraper for multiple sources
 
+@retry_external_api
 def fetch_remoteok(query: str, limit: int = 10) -> List[Dict[str, Any]]:
     """Fetch jobs from RemoteOK API."""
-    print(f"Fetching from RemoteOK: {query}")
+    logger.info(f"Fetching from RemoteOK: {query}")
     url = "https://remoteok.com/api"
     # RemoteOK filters by tag if provided
     params = {}
@@ -38,12 +43,20 @@ def fetch_remoteok(query: str, limit: int = 10) -> List[Dict[str, Any]]:
                 })
             return normalized
     except Exception as e:
-        print(f"Error fetching RemoteOK: {e}")
+        logger.error(f"Error fetching RemoteOK: {e}")
+        # Re-raise for retry logic to catch it, unless we really want to just fail silently.
+        # But wait, the original code returned [] and logged.
+        # Retry decorator expects an exception. 
+        # If I catch and return [], retry won't trigger!
+        # I should raise e here if I want retry.
+        raise e
     return []
 
+@retry_external_api
 def fetch_arbeitnow(query: str, limit: int = 10) -> List[Dict[str, Any]]:
+   # ... (content will serve as target match)
     """Fetch jobs from Arbeitnow API."""
-    print(f"Fetching from Arbeitnow: {query}")
+    logger.info(f"Fetching from Arbeitnow: {query}")
     url = "https://arbeitnow.com/api/job-board-api"
     
     try:
@@ -71,12 +84,14 @@ def fetch_arbeitnow(query: str, limit: int = 10) -> List[Dict[str, Any]]:
                 })
             return normalized
     except Exception as e:
-        print(f"Error fetching Arbeitnow: {e}")
+        logger.error(f"Error fetching Arbeitnow: {e}")
+        raise e
     return []
 
+@retry_external_api
 def fetch_weworkremotely(query: str, limit: int = 10) -> List[Dict[str, Any]]:
     """Fetch jobs from WeWorkRemotely RSS."""
-    print(f"Fetching from WeWorkRemotely: {query}")
+    logger.info(f"Fetching from WeWorkRemotely: {query}")
     # RSS Feed categories: programming, design, etc.
     # We'll just fetch the 'All' feed or Programming
     url = "https://weworkremotely.com/categories/remote-programming-jobs.rss"
@@ -103,12 +118,14 @@ def fetch_weworkremotely(query: str, limit: int = 10) -> List[Dict[str, Any]]:
                 break
         return normalized
     except Exception as e:
-        print(f"Error fetching WeWorkRemotely: {e}")
+        logger.error(f"Error fetching WeWorkRemotely: {e}")
+        raise e
     return []
 
+@retry_external_api
 def fetch_jobicy(query: str, limit: int = 10) -> List[Dict[str, Any]]:
     """Fetch jobs from Jobicy RSS."""
-    print(f"Fetching from Jobicy: {query}")
+    logger.info(f"Fetching from Jobicy: {query}")
     url = "https://jobicy.com/feed/dev"
     
     try:
@@ -132,12 +149,14 @@ def fetch_jobicy(query: str, limit: int = 10) -> List[Dict[str, Any]]:
                 break
         return normalized
     except Exception as e:
-        print(f"Error fetching Jobicy: {e}")
+        logger.error(f"Error fetching Jobicy: {e}")
+        raise e
     return []    
 
+@retry_external_api
 def fetch_remotive(query: str, limit: int = 10) -> List[Dict[str, Any]]:
     """Fetch jobs from Remotive API."""
-    print(f"Fetching from Remotive: {query}")
+    logger.info(f"Fetching from Remotive: {query}")
     url = "https://remotive.com/api/remote-jobs"
     params = {}
     if query:
@@ -162,7 +181,8 @@ def fetch_remotive(query: str, limit: int = 10) -> List[Dict[str, Any]]:
                 })
             return normalized
     except Exception as e:
-        print(f"Error fetching Remotive: {e}")
+        logger.error(f"Error fetching Remotive: {e}")
+        raise e
     return []
 
 def fetch_all_jobs(query: str, limit_per_source: int = 5) -> List[Dict[str, Any]]:

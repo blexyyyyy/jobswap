@@ -5,6 +5,8 @@ from bs4 import BeautifulSoup
 from scrapers.base import RawJob, clean_text
 
 
+from app.core.logging import logger
+
 BASE_URL = "https://www.timesjobs.com/candidate/job-search.html"
 
 
@@ -20,7 +22,7 @@ def fetch_timesjobs(query: str, max_jobs: int = 20) -> List[RawJob]:
         resp = requests.get(BASE_URL, params=params, timeout=15)
         resp.raise_for_status()
     except Exception as e:
-        print(f"Error fetching TimesJobs: {e}")
+        logger.error(f"Error fetching TimesJobs: {e}")
         return []
 
     soup = BeautifulSoup(resp.text, "html.parser")

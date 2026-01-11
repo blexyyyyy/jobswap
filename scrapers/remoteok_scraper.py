@@ -4,16 +4,18 @@ import requests
 from scrapers.base import RawJob, clean_text
 
 
+from app.core.logging import logger
+
 API_URL = "https://remoteok.com/api"
 
 
 def fetch_remoteok(query: str, max_jobs: int = 20) -> List[RawJob]:
     try:
-        resp = requests.get(API_URL, timeout=15, headers={"User-Agent": "JobSwipe/1.0"}) # RemoteOK requires UA often
+        resp = requests.get(API_URL, timeout=15, headers={"User-Agent": "JobSwap/1.0"}) # RemoteOK requires UA often
         resp.raise_for_status()
         data = resp.json()
     except Exception as e:
-        print(f"Error fetching RemoteOK: {e}")
+        logger.error(f"Error fetching RemoteOK: {e}")
         return []
 
     if not isinstance(data, list):

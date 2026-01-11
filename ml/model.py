@@ -4,6 +4,7 @@ from __future__ import annotations
 import pickle
 from pathlib import Path
 from typing import Optional, Dict
+from app.core.logging import logger
 
 from ml.features import extract_job_features, as_vector
 
@@ -20,7 +21,7 @@ def clear_cache():
     global _MODEL_CACHE, _FEATURE_ORDER
     _MODEL_CACHE = None
     _FEATURE_ORDER = None
-    print("[ML] Model cache cleared.")
+    logger.info("[ML] Model cache cleared.")
 
 
 def load_model():
@@ -40,10 +41,10 @@ def load_model():
             data = pickle.load(f)
             _MODEL_CACHE = data["model"]
             _FEATURE_ORDER = data["feature_order"]
-            print(f"[ML] Model loaded from {MODEL_PATH}")
+            logger.info(f"[ML] Model loaded from {MODEL_PATH}")
             return _MODEL_CACHE, _FEATURE_ORDER
     except Exception as e:
-        print(f"[ML] Error loading model: {e}")
+        logger.error(f"[ML] Error loading model: {e}")
         return None, None
 
 
@@ -77,5 +78,5 @@ def score_job(user: Dict, job: Dict) -> float:
         proba = clf.predict_proba([vector])[0][1]
         return float(proba)
     except Exception as e:
-        print(f"[ML] scoring error: {e}")
+        logger.error(f"[ML] scoring error: {e}")
         return 0.5
