@@ -1,3 +1,4 @@
+from typing import Optional
 from app.core.interfaces import JobResult
 
 # Alias for backward compatibility, but JobResult is the standard
