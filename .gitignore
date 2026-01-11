@@ -61,13 +61,13 @@ Thumbs.db
 frontend/dist/
 frontend/node_modules/
 frontend/.vite/
-frontend/package-lock.json
+# frontend/package-lock.json
 
 # ML Models
-ml/models/*.pkl
-ml/models/*.joblib
-*.pkl
-*.joblib
+# ml/models/*.pkl
+# ml/models/*.joblib
+# *.pkl
+# *.joblib
 
 # Uploaded files
 uploads/
