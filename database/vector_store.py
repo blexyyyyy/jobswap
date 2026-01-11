@@ -1,7 +1,10 @@
 import os
 from typing import Any, Dict, List, Optional
 
-import chromadb
+try:
+    import chromadb
+except ImportError:
+    chromadb = None
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -22,6 +25,8 @@ class VectorStore:
         os.makedirs(self.persist_directory, exist_ok=True)
 
         # Persistent client so data survives restarts
+        if chromadb is None:
+            raise RuntimeError("chromadb is not installed. Vector DB features are disabled.")
         self.client = chromadb.PersistentClient(path=self.persist_directory)
 
         # Two collections: one for candidates, one for jobs

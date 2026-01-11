@@ -1,7 +1,11 @@
 import sqlite3
 import json
-import chromadb
-from chromadb.utils import embedding_functions
+try:
+    import chromadb
+    from chromadb.utils import embedding_functions
+except ImportError:
+    chromadb = None
+    embedding_functions = None
 import os
 from contextlib import contextmanager
 from typing import Dict, Any, List
@@ -25,6 +29,8 @@ CHROMA_DB_PATH = "./chroma_db"
 def get_chroma_client():
     if not os.path.exists(CHROMA_DB_PATH):
         os.makedirs(CHROMA_DB_PATH)
+    if chromadb is None:
+        raise RuntimeError("chromadb is not installed. Vector DB features are disabled.")
     return chromadb.PersistentClient(path=CHROMA_DB_PATH)
 
 def get_embedding_function():
