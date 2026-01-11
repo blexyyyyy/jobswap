@@ -36,7 +36,8 @@ except Exception as e:
     print(f"  ✗ Scraper error: {e}")
     import traceback
     traceback.print_exc()
-    sys.exit(1)
+    import pytest
+    pytest.fail(f"Test failed: {e}")
 
 # Step 3: Test LLM parsing
 print("\n[3/5] Testing LLM Job Parsing...")
@@ -59,7 +60,8 @@ except Exception as e:
     print(f"  ✗ Parsing error: {e}")
     import traceback
     traceback.print_exc()
-    sys.exit(1)
+    import pytest
+    pytest.fail(f"Test failed: {e}")
 
 # Step 4: Test embedding generation
 print("\n[4/5] Testing Embedding Generation...")
