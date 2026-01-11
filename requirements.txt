@@ -30,6 +30,7 @@ scikit-learn
 # HTTP Client
 requests>=2.31.0
 httpx>=0.25.0
+feedparser
 
 # Utilities
 python-dateutil
