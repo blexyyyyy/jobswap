@@ -4,6 +4,19 @@ JobSwap is a modular, production-oriented career platform designed to modernize 
 
 > This project prioritizes systems design and architectural clarity over simple wrapper logic, demonstrating a robust integration of machine learning and large language models into a functional web application.
 
+## 📽️ Demo
+
+[![JobSwap Demo](https://img.youtube.com/vi/OtCdinoW0cY/0.jpg)](https://www.youtube.com/watch?v=OtCdinoW0cY)
+
+## 🎬 Demo Walkthrough
+
+The video above demonstrates the complete end-to-end flow of JobSwap:
+
+*   **Real-Time Job Ingestion**: Aggregating live job data from multiple remote platforms (RemoteOK, Remotive, etc.) into a unified schema.
+*   **Intelligent Scoring**: The ML engine (`LogisticMatchScorer`) analyzes the candidate's profile against job requirements to predict a match probability.
+*   **AI-Powered Insights**: An LLM generates a clear, explainable "Why" for every match, highlighting specific skill overlaps or gaps.
+*   **Interactive Interface**: A responsive, card-swiping UI that allows users to seamlessly save or skip opportunities based on data-driven recommendations.
+
 ## Quick Start
 ```bash
 git clone https://github.com/blexyyyyy/jobswap.git
@@ -124,9 +137,8 @@ graph TD
 ## Testing and Verification
 
 The system includes a suite of verification scripts to ensure component integrity:
-- **Scraper Verification**: `pytest tests/verify_scraping.py`
-- **ML Logic Check**: `python scripts/verify_ml.py`
-- **E2E Match Test**: `python scripts/debug_explanation.py`
+- **Unit & Integration Tests**: `pytest tests/`
+- **Scraper Verification**: `pytest tests/test_scrapers.py`
 
 ## Project Status
 
